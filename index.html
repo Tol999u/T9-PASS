@@ -22,12 +22,8 @@
 }
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) {
-    --bg: #EFF4FC;
-    --surface: #FFFFFF;
-    --surface2: #E4EBF7;
-    --text: #1A2535;
-    --text-sub: #6A7C95;
-    --border: rgba(74,158,255,0.2);
+    --bg: #EFF4FC; --surface: #FFFFFF; --surface2: #E4EBF7;
+    --text: #1A2535; --text-sub: #6A7C95; --border: rgba(74,158,255,0.2);
   }
 }
 :root[data-theme="light"] {
@@ -35,7 +31,6 @@
   --text: #1A2535; --text-sub: #6A7C95; --border: rgba(74,158,255,0.2);
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 html, body {
   height: 100%;
   -webkit-tap-highlight-color: transparent;
@@ -50,38 +45,32 @@ body {
   align-items: center;
   touch-action: pan-y;
 }
-
 .app {
   width: 100%;
-  max-width: 480px;
+  max-width: 600px;
   min-height: 100%;
   display: flex;
   flex-direction: column;
 }
-
 /* ── Header ── */
 .header {
   padding: 10px 20px 8px;
   text-align: center;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
-  position: sticky;
-  top: env(safe-area-inset-top, 0px);
-  z-index: 10;
   position: relative;
+  z-index: 10;
 }
 .header h1 { font-size: 15px; font-weight: 500; }
 .header p  { font-size: 11px; color: var(--text-sub); margin-top: 1px; }
-
 /* ── Pattern area ── */
 .pattern-zone {
-  padding: 8px 12px 10px;
+  padding: 6px 6px 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
-
 .status-pill {
   display: inline-flex;
   align-items: center;
@@ -101,25 +90,24 @@ body {
   transition: background .25s;
   flex-shrink: 0;
 }
-.status-pill.error  { color: var(--error);   border-color: rgba(255,92,106,.3); }
-.status-pill.error  .blink { background: var(--error); }
-.status-pill.ok     { color: var(--success); border-color: rgba(61,217,138,.3); }
-.status-pill.ok     .blink { background: var(--success); }
-
-/* Canvas fills available width on mobile */
+.status-pill.error { color: var(--error); border-color: rgba(255,92,106,.3); }
+.status-pill.error .blink { background: var(--error); }
+.status-pill.ok { color: var(--success); border-color: rgba(61,217,138,.3); }
+.status-pill.ok .blink { background: var(--success); }
+/* ── Canvas — fills phone width ── */
 .canvas-shell {
   position: relative;
-  width: min(380px, calc(100vw - 16px));
+  width: calc(100vw - 12px);
+  max-width: 560px;
   aspect-ratio: 1;
   user-select: none;
   -webkit-user-select: none;
   touch-action: none;
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 24px rgba(0,0,0,.5), 0 0 0 1px var(--border);
+  box-shadow: 0 6px 32px rgba(0,0,0,.6), 0 0 0 1px var(--border);
 }
 canvas#pat { display: block; width: 100%; height: 100%; }
-
 /* ── Buttons ── */
 .action-row { display: flex; gap: 10px; }
 .btn {
@@ -129,17 +117,13 @@ canvas#pat { display: block; width: 100%; height: 100%; }
   min-height: 44px;
 }
 .btn:focus-visible { box-shadow: 0 0 0 3px var(--primary-glow); }
-.btn-ghost {
-  background: var(--surface); color: var(--text-sub);
-  border: 1px solid var(--border);
-}
+.btn-ghost { background: var(--surface); color: var(--text-sub); border: 1px solid var(--border); }
 .btn-ghost:hover, .btn-ghost:active { background: var(--surface2); color: var(--text); }
 .btn-blue { background: var(--primary); color: #fff; }
 .btn-blue:disabled { opacity: .35; pointer-events: none; }
 .btn-blue:hover:not(:disabled), .btn-blue:active:not(:disabled) { filter: brightness(1.1); }
-
 /* ── Note input ── */
-.note-bar { width: min(380px, calc(100vw - 16px)); display: none; gap: 8px; align-items: center; }
+.note-bar { width: calc(100vw - 12px); max-width: 560px; display: none; gap: 8px; align-items: center; }
 .note-bar.show { display: flex; }
 .note-field {
   flex: 1; background: var(--surface2); border: 1px solid var(--border);
@@ -154,7 +138,6 @@ canvas#pat { display: block; width: 100%; height: 100%; }
   padding: 9px 14px; font-family: inherit; font-size: 13px; font-weight: 500;
   cursor: pointer; white-space: nowrap; min-height: 44px;
 }
-
 /* ── History ── */
 .history-wrap { flex: 1; padding: 0 16px 24px; }
 .hist-head {
@@ -165,31 +148,21 @@ canvas#pat { display: block; width: 100%; height: 100%; }
 .hist-count { font-size: 11px; color: var(--text-sub); background: var(--surface); border: 1px solid var(--border); border-radius: 99px; padding: 2px 8px; }
 .btn-del-all { font-size: 12px; color: var(--error); background: none; border: none; cursor: pointer; font-family: inherit; opacity: .6; padding: 4px 0; min-height: 36px; }
 .btn-del-all:hover, .btn-del-all:active { opacity: 1; }
-
 .hist-list { display: flex; flex-direction: column; gap: 7px; }
 .hist-empty { text-align: center; color: var(--text-sub); font-size: 13px; padding: 24px 0; }
-
 .hist-item {
   background: var(--surface); border: 1px solid var(--border);
   border-radius: var(--r); padding: 10px 10px 10px 12px;
-  display: flex; align-items: center; gap: 10px;
-  transition: border-color .2s;
+  display: flex; align-items: center; gap: 10px; transition: border-color .2s;
 }
 .hist-item:hover, .hist-item:active { border-color: rgba(74,158,255,.25); }
-
 .mini-wrap { width: 52px; height: 52px; flex-shrink: 0; border-radius: 8px; overflow: hidden; background: #0C1621; }
 canvas.mini { display: block; width: 52px; height: 52px; }
-
 .hist-body { flex: 1; min-width: 0; }
-.hist-kp {
-  font-size: 13px; font-weight: 700; color: var(--primary);
-  letter-spacing: 0.5px; font-variant-numeric: tabular-nums;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
+.hist-kp { font-size: 13px; font-weight: 700; color: var(--primary); letter-spacing: 0.5px; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .hist-note { font-size: 12px; color: var(--text); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .hist-note.ph { color: var(--text-sub); font-style: italic; }
 .hist-time { font-size: 11px; color: var(--text-sub); margin-top: 3px; }
-
 .btn-x {
   background: none; border: none; color: var(--text-sub); cursor: pointer;
   font-size: 15px; padding: 8px; line-height: 1; opacity: .4; flex-shrink: 0;
@@ -197,12 +170,8 @@ canvas.mini { display: block; width: 52px; height: 52px; }
   display: flex; align-items: center; justify-content: center;
 }
 .btn-x:hover, .btn-x:active { opacity: 1; color: var(--error); background: rgba(255,92,106,.1); }
-
 /* ── Pagination ── */
-.pag-row {
-  display: flex; align-items: center; justify-content: center;
-  gap: 10px; padding: 8px 0 2px;
-}
+.pag-row { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 8px 0 2px; }
 .pag-btn {
   background: var(--surface); border: 1px solid var(--border);
   border-radius: 8px; padding: 5px 16px; font-size: 15px;
@@ -214,20 +183,13 @@ canvas.mini { display: block; width: 52px; height: 52px; }
 }
 .pag-btn:disabled { opacity: .25; pointer-events: none; }
 .pag-info { font-size: 12px; color: var(--text-sub); min-width: 48px; text-align: center; }
-
-/* ── Footer (compact) ── */
+/* ── Footer ── */
 .app-footer {
-  padding: 12px 20px 18px;
-  text-align: center;
-  border-top: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
+  padding: 12px 20px 18px; text-align: center; border-top: 1px solid var(--border);
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
 }
 .footer-line1 {
-  display: flex; align-items: center; gap: 0;
-  flex-wrap: wrap; justify-content: center;
+  display: flex; align-items: center; flex-wrap: wrap; justify-content: center;
   font-size: 11px; color: var(--text-sub); line-height: 1.6;
 }
 .footer-by { font-weight: 600; color: var(--primary); }
@@ -235,30 +197,22 @@ canvas.mini { display: block; width: 52px; height: 52px; }
 .footer-link { color: var(--primary); text-decoration: none; opacity: 0.8; }
 .footer-link:hover { opacity: 1; text-decoration: underline; }
 .footer-notice { font-size: 10px; color: var(--text-sub); opacity: 0.55; line-height: 1.5; }
-
-/* ── Install button (header) ── */
+/* ── Install FAB ── */
 .install-fab {
   position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
   background: var(--primary); color: #fff; border: none; border-radius: 99px;
   padding: 5px 13px; font-size: 12px; font-family: inherit; font-weight: 600;
   cursor: pointer; display: flex; align-items: center; gap: 4px;
-  min-height: 36px; transition: filter .15s, box-shadow .15s;
-  box-shadow: 0 2px 10px rgba(74,158,255,.35);
-  white-space: nowrap;
+  min-height: 36px; box-shadow: 0 2px 10px rgba(74,158,255,.35); white-space: nowrap;
 }
 .install-fab:hover, .install-fab:active { filter: brightness(1.15); }
-.install-fab-icon { font-size: 14px; }
-
-/* ── Install guide modal ── */
+/* ── Modal ── */
 .modal-overlay {
   position: fixed; inset: 0;
   background: rgba(8,16,28,.82);
   backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-  z-index: 200;
-  display: flex; align-items: center; justify-content: center;
-  padding: 20px;
-  opacity: 0; visibility: hidden;
-  transition: opacity .28s, visibility .28s;
+  z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px;
+  opacity: 0; visibility: hidden; transition: opacity .28s, visibility .28s;
 }
 .modal-overlay.open { opacity: 1; visibility: visible; }
 .modal-box {
@@ -270,90 +224,65 @@ canvas.mini { display: block; width: 52px; height: 52px; }
 .modal-overlay.open .modal-box { transform: translateY(0); }
 .modal-hd { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
 .modal-title { font-size: 17px; font-weight: 700; line-height: 1.3; }
-.modal-x {
-  background: none; border: none; color: var(--text-sub); cursor: pointer;
-  font-size: 18px; padding: 0; line-height: 1; opacity: .5; flex-shrink: 0; margin-top: 2px;
-}
+.modal-x { background: none; border: none; color: var(--text-sub); cursor: pointer; font-size: 18px; padding: 0; line-height: 1; opacity: .5; flex-shrink: 0; margin-top: 2px; }
 .modal-x:hover { opacity: 1; }
 .modal-sub { font-size: 12px; color: var(--text-sub); line-height: 1.6; }
 .modal-url {
   background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
   padding: 8px 12px; font-size: 11px; color: var(--primary);
-  font-family: monospace; word-break: break-all;
-  display: flex; align-items: center; gap: 8px;
+  font-family: monospace; word-break: break-all; display: flex; align-items: center; gap: 8px;
 }
-.copy-url-btn {
-  background: none; border: none; color: var(--primary); cursor: pointer;
-  font-size: 14px; flex-shrink: 0; padding: 2px 4px; border-radius: 4px;
-  transition: background .15s;
-}
+.copy-url-btn { background: none; border: none; color: var(--primary); cursor: pointer; font-size: 14px; flex-shrink: 0; padding: 2px 4px; border-radius: 4px; }
 .copy-url-btn:hover { background: var(--primary-dim); }
-.modal-os {
-  background: var(--surface2); border-radius: 14px; padding: 14px 14px 12px;
-  display: flex; flex-direction: column; gap: 8px;
-}
+.modal-os { background: var(--surface2); border-radius: 14px; padding: 14px 14px 12px; display: flex; flex-direction: column; gap: 8px; }
 .modal-os-title { font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 2px; }
 .modal-step { font-size: 12.5px; color: var(--text); line-height: 1.55; padding-left: 4px; }
 .modal-step b { color: var(--primary); }
 .modal-btn-close {
   background: var(--surface2); border: 1px solid var(--border);
   border-radius: 12px; padding: 11px; text-align: center;
-  color: var(--text-sub); font-size: 14px; font-weight: 500; cursor: pointer;
-  font-family: inherit; transition: background .15s, color .15s, border-color .15s;
+  color: var(--text-sub); font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit;
 }
-.modal-btn-close:hover, .modal-btn-close:active {
-  background: var(--primary); color: #fff; border-color: var(--primary);
-}
+.modal-btn-close:hover, .modal-btn-close:active { background: var(--primary); color: #fff; border-color: var(--primary); }
 .install-banner {
   display: none; align-items: center; justify-content: space-between;
-  background: var(--primary); color: #fff; padding: 10px 16px;
-  font-size: 13px; gap: 10px;
+  background: var(--primary); color: #fff; padding: 10px 16px; font-size: 13px; gap: 10px;
 }
 .install-banner.show { display: flex; }
 .install-banner button {
   background: #fff; color: var(--primary); border: none; border-radius: 99px;
-  padding: 5px 14px; font-size: 12px; font-weight: 700; cursor: pointer;
-  white-space: nowrap; font-family: inherit;
+  padding: 5px 14px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit;
 }
 </style>
 </head>
 <body>
-
 <div class="app">
   <div class="install-banner" id="installBanner">
     <span>📲 홈 화면에 앱으로 설치하기</span>
     <button id="bannerInstallBtn">설치</button>
   </div>
-
   <div class="header">
     <h1>🔐 스마트폰 패턴 찾기</h1>
     <p>패턴을 그려서 연습하고 기록하세요</p>
-    <button class="install-fab" id="installGuideBtn" title="앱으로 설치하기">
-      <span class="install-fab-icon">📲</span> 앱 설치
-    </button>
+    <button class="install-fab" id="installGuideBtn">📲 앱 설치</button>
   </div>
-
   <div class="pattern-zone">
     <div class="status-pill" id="statusPill">
       <span class="blink"></span>
       <span id="statusText">점을 연결하여 패턴을 그리세요</span>
     </div>
-
     <div class="canvas-shell" id="shell">
       <canvas id="pat"></canvas>
     </div>
-
     <div class="action-row">
       <button class="btn btn-ghost" id="btnReset">초기화</button>
       <button class="btn btn-blue" id="btnSave" disabled>저장하기</button>
     </div>
-
     <div class="note-bar" id="noteBar">
       <input class="note-field" id="noteField" placeholder="메모 (예: ㄱ자형, 시도5…)" maxlength="40">
       <button class="btn-confirm" id="btnConfirm">저장</button>
     </div>
   </div>
-
   <div class="history-wrap">
     <div class="hist-head">
       <h2>시도 기록</h2>
@@ -371,18 +300,28 @@ canvas.mini { display: block; width: 52px; height: 52px; }
       <button class="pag-btn" id="pagNext">→</button>
     </div>
   </div>
+  <footer class="app-footer">
+    <div class="footer-line1">
+      <span class="footer-by">by. T9</span>
+      <span class="footer-divider">·</span>
+      <span>© 2026 스마트폰 패턴 찾기</span>
+      <span class="footer-divider">·</span>
+      <a class="footer-link" href="mailto:dotol9u@gmail.com">dotol9u@gmail.com</a>
+    </div>
+    <div class="footer-notice">본 도구는 개인 패턴 분실 시 연습 목적으로만 사용하세요.</div>
+  </footer>
 </div>
 
-<div class="modal-overlay" id="installModal" role="dialog" aria-modal="true" aria-label="앱 설치 안내">
+<div class="modal-overlay" id="installModal" role="dialog" aria-modal="true">
   <div class="modal-box">
     <div class="modal-hd">
       <div class="modal-title">📲 홈 화면에 앱으로 설치</div>
       <button class="modal-x" id="modalCloseX">✕</button>
     </div>
     <p class="modal-sub">설치하면 앱처럼 전체화면으로 실행되며 오프라인에서도 사용할 수 있습니다.</p>
-    <div class="modal-url" id="siteUrl">
+    <div class="modal-url">
       <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" id="urlText">—</span>
-      <button class="copy-url-btn" id="copyUrlBtn" title="URL 복사">📋</button>
+      <button class="copy-url-btn" id="copyUrlBtn">📋</button>
     </div>
     <div class="modal-os">
       <div class="modal-os-title">🤖 Android (Chrome)</div>
@@ -403,542 +342,194 @@ canvas.mini { display: block; width: 52px; height: 52px; }
 </div>
 
 <script>
-(function () {
-  'use strict';
+(function(){
+'use strict';
+const KEYPAD=[7,8,9,4,5,6,1,2,3];
+const canvas=document.getElementById('pat'),shell=document.getElementById('shell'),ctx=canvas.getContext('2d');
+const statusPill=document.getElementById('statusPill'),statusText=document.getElementById('statusText');
+const btnReset=document.getElementById('btnReset'),btnSave=document.getElementById('btnSave');
+const noteBar=document.getElementById('noteBar'),noteField=document.getElementById('noteField'),btnConfirm=document.getElementById('btnConfirm');
+const histList=document.getElementById('histList'),histCount=document.getElementById('histCount'),btnDelAll=document.getElementById('btnDelAll');
+const pagRow=document.getElementById('pagRow'),pagPrev=document.getElementById('pagPrev'),pagNext=document.getElementById('pagNext'),pagInfo=document.getElementById('pagInfo');
+const PAGE_SIZE=4;let currentPage=0,pattern=[],drawing=false,curPos=null,dots=[],dpr=1,dispSize=0,history=[];
+try{const s=localStorage.getItem('gp_hist2');if(s)history=JSON.parse(s);}catch(_){}
 
-  // 키패드 매핑: 그리드 인덱스(0-8) → 전화 키패드 번호
-  // [0][1][2] → 7 8 9
-  // [3][4][5] → 4 5 6
-  // [6][7][8] → 1 2 3
-  const KEYPAD = [7, 8, 9, 4, 5, 6, 1, 2, 3];
+function resize(){
+  dpr=Math.min(window.devicePixelRatio||1,3);
+  dispSize=shell.offsetWidth;
+  canvas.width=dispSize*dpr;canvas.height=dispSize*dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  computeDots();render();
+}
+function computeDots(){
+  const pad=dispSize*0.10,step=(dispSize-pad*2)/2;
+  dots=[];
+  for(let r=0;r<3;r++)for(let c=0;c<3;c++)dots.push({x:pad+c*step,y:pad+r*step});
+}
+const C={bg:'#0C1621',line:'rgba(74,158,255,0.65)',trail:'rgba(74,158,255,0.28)',dot:'#4A9EFF',idle:'#1E3049',ring:'rgba(74,158,255,0.18)',stroke:'rgba(74,158,255,0.42)',num:'rgba(100,148,190,0.85)'};
+const R_ACT=26,R_RING=46,R_IDLE=18;
 
-  const canvas     = document.getElementById('pat');
-  const shell      = document.getElementById('shell');
-  const ctx        = canvas.getContext('2d');
-  const statusPill = document.getElementById('statusPill');
-  const statusText = document.getElementById('statusText');
-  const btnReset   = document.getElementById('btnReset');
-  const btnSave    = document.getElementById('btnSave');
-  const noteBar    = document.getElementById('noteBar');
-  const noteField  = document.getElementById('noteField');
-  const btnConfirm = document.getElementById('btnConfirm');
-  const histList   = document.getElementById('histList');
-  const histCount  = document.getElementById('histCount');
-  const btnDelAll  = document.getElementById('btnDelAll');
-  const pagRow     = document.getElementById('pagRow');
-  const pagPrev    = document.getElementById('pagPrev');
-  const pagNext    = document.getElementById('pagNext');
-  const pagInfo    = document.getElementById('pagInfo');
-
-  const PAGE_SIZE = 4;
-  let currentPage = 0;
-  let pattern  = [];
-  let drawing  = false;
-  let curPos   = null;
-  let dots     = [];
-  let dpr      = 1;
-  let dispSize = 0;
-  let history  = [];
-
-  try { const s = localStorage.getItem('gp_hist2'); if (s) history = JSON.parse(s); } catch (_) {}
-
-  function resize() {
-    dpr      = Math.min(window.devicePixelRatio || 1, 3);
-    dispSize = shell.offsetWidth;
-    canvas.width  = dispSize * dpr;
-    canvas.height = dispSize * dpr;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    computeDots();
-    render();
+function render(){
+  const s=dispSize;
+  ctx.fillStyle=C.bg;ctx.fillRect(0,0,s,s);
+  if(pattern.length>=2){
+    ctx.beginPath();const{x:x0,y:y0}=dots[pattern[0]];ctx.moveTo(x0,y0);
+    for(let i=1;i<pattern.length;i++){const{x,y}=dots[pattern[i]];ctx.lineTo(x,y);}
+    ctx.strokeStyle=C.line;ctx.lineWidth=6;ctx.lineCap='round';ctx.lineJoin='round';ctx.stroke();
   }
-
-  function computeDots() {
-    const pad  = dispSize * 0.14;
-    const step = (dispSize - pad * 2) / 2;
-    dots = [];
-    for (let r = 0; r < 3; r++)
-      for (let c = 0; c < 3; c++)
-        dots.push({ x: pad + c * step, y: pad + r * step });
+  if(drawing&&pattern.length>0&&curPos){
+    const last=dots[pattern[pattern.length-1]];
+    ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(curPos.x,curPos.y);
+    ctx.strokeStyle=C.trail;ctx.lineWidth=4;ctx.lineCap='round';ctx.stroke();
   }
-
-  const C = {
-    bg:     '#0C1621',
-    line:   'rgba(74,158,255,0.65)',
-    trail:  'rgba(74,158,255,0.28)',
-    dot:    '#4A9EFF',
-    idle:   '#1E3049',
-    ring:   'rgba(74,158,255,0.18)',
-    stroke: 'rgba(74,158,255,0.42)',
-    num:    'rgba(100,148,190,0.85)',
-  };
-  const R_ACT  = 20;
-  const R_RING = 34;
-  const R_IDLE = 14;
-
-  function render() {
-    const s = dispSize;
-    ctx.fillStyle = C.bg;
-    ctx.fillRect(0, 0, s, s);
-
-    if (pattern.length >= 2) {
-      ctx.beginPath();
-      const {x: x0, y: y0} = dots[pattern[0]];
-      ctx.moveTo(x0, y0);
-      for (let i = 1; i < pattern.length; i++) {
-        const {x, y} = dots[pattern[i]];
-        ctx.lineTo(x, y);
+  dots.forEach((p,i)=>{
+    const active=pattern.includes(i),kpNum=KEYPAD[i],drawOrd=active?(pattern.indexOf(i)+1):0;
+    if(active){
+      ctx.beginPath();ctx.arc(p.x,p.y,R_RING,0,Math.PI*2);ctx.fillStyle=C.ring;ctx.fill();
+      ctx.beginPath();ctx.arc(p.x,p.y,R_RING,0,Math.PI*2);ctx.strokeStyle=C.stroke;ctx.lineWidth=1.2;ctx.stroke();
+      ctx.beginPath();ctx.arc(p.x,p.y,R_ACT,0,Math.PI*2);ctx.fillStyle=C.dot;ctx.fill();
+      ctx.font='bold 18px Roboto,sans-serif';ctx.fillStyle='#fff';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(kpNum,p.x,p.y);
+      if(pattern.length>1){
+        const bx=p.x+R_RING*0.68,by=p.y-R_RING*0.68;
+        ctx.beginPath();ctx.arc(bx,by,12,0,Math.PI*2);ctx.fillStyle='#0C1621';ctx.fill();
+        ctx.beginPath();ctx.arc(bx,by,12,0,Math.PI*2);ctx.strokeStyle=C.dot;ctx.lineWidth=2;ctx.stroke();
+        ctx.font='bold 11px Roboto,sans-serif';ctx.fillStyle=C.dot;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(drawOrd,bx,by);
       }
-      ctx.strokeStyle = C.line;
-      ctx.lineWidth   = 4;
-      ctx.lineCap     = 'round';
-      ctx.lineJoin    = 'round';
-      ctx.stroke();
+    }else{
+      ctx.beginPath();ctx.arc(p.x,p.y,R_IDLE,0,Math.PI*2);ctx.fillStyle=C.idle;ctx.fill();
+      ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);ctx.fillStyle='rgba(100,148,190,0.4)';ctx.fill();
+      ctx.font='500 14px Roboto,sans-serif';ctx.fillStyle=C.num;ctx.textAlign='center';ctx.textBaseline='top';ctx.fillText(kpNum,p.x,p.y+R_IDLE+4);
     }
-
-    if (drawing && pattern.length > 0 && curPos) {
-      const last = dots[pattern[pattern.length - 1]];
-      ctx.beginPath();
-      ctx.moveTo(last.x, last.y);
-      ctx.lineTo(curPos.x, curPos.y);
-      ctx.strokeStyle = C.trail;
-      ctx.lineWidth   = 3;
-      ctx.lineCap     = 'round';
-      ctx.stroke();
-    }
-
-    dots.forEach((p, i) => {
-      const active  = pattern.includes(i);
-      const kpNum   = KEYPAD[i];
-      const drawOrd = active ? (pattern.indexOf(i) + 1) : 0;
-
-      if (active) {
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, R_RING, 0, Math.PI * 2);
-        ctx.fillStyle = C.ring;
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, R_RING, 0, Math.PI * 2);
-        ctx.strokeStyle = C.stroke;
-        ctx.lineWidth = 1.2;
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, R_ACT, 0, Math.PI * 2);
-        ctx.fillStyle = C.dot;
-        ctx.fill();
-
-        ctx.font = `bold 14px Roboto, sans-serif`;
-        ctx.fillStyle = '#fff';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(kpNum, p.x, p.y);
-
-        if (pattern.length > 1) {
-          const bx = p.x + R_RING * 0.68;
-          const by = p.y - R_RING * 0.68;
-          ctx.beginPath();
-          ctx.arc(bx, by, 9, 0, Math.PI * 2);
-          ctx.fillStyle = '#0C1621';
-          ctx.fill();
-          ctx.beginPath();
-          ctx.arc(bx, by, 9, 0, Math.PI * 2);
-          ctx.strokeStyle = C.dot;
-          ctx.lineWidth = 1.5;
-          ctx.stroke();
-          ctx.font = `bold 9px Roboto, sans-serif`;
-          ctx.fillStyle = C.dot;
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText(drawOrd, bx, by);
-        }
-
-      } else {
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, R_IDLE, 0, Math.PI * 2);
-        ctx.fillStyle = C.idle;
-        ctx.fill();
-
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(100,148,190,0.4)';
-        ctx.fill();
-
-        ctx.font = `500 12px Roboto, sans-serif`;
-        ctx.fillStyle = C.num;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'top';
-        ctx.fillText(kpNum, p.x, p.y + R_IDLE + 3);
-      }
-    });
-  }
-
-  function getPos(e) {
-    const rect = canvas.getBoundingClientRect();
-    const sx = dispSize / rect.width;
-    const sy = dispSize / rect.height;
-    const src = e.touches ? e.touches[0] : e;
-    return {
-      x: (src.clientX - rect.left) * sx,
-      y: (src.clientY - rect.top)  * sy
-    };
-  }
-
-  function nearestDot(x, y) {
-    let best = -1, bestD = Infinity;
-    dots.forEach((p, i) => {
-      const d = Math.hypot(x - p.x, y - p.y);
-      if (d < bestD) { bestD = d; best = i; }
-    });
-    return bestD < R_RING + 6 ? best : -1;
-  }
-
-  function onStart(e) {
-    e.preventDefault();
-    drawing = true; pattern = [];
-    btnSave.disabled = true;
-    noteBar.classList.remove('show');
-    setStatus('', '패턴 입력 중...');
-    const pos = getPos(e);
-    curPos = pos;
-    const d = nearestDot(pos.x, pos.y);
-    if (d >= 0) pattern.push(d);
-    render();
-  }
-
-  function onMove(e) {
-    if (!drawing) return;
-    e.preventDefault();
-    const pos = getPos(e);
-    curPos = pos;
-    const d = nearestDot(pos.x, pos.y);
-    if (d >= 0 && !pattern.includes(d)) pattern.push(d);
-    render();
-  }
-
-  function onEnd(e) {
-    if (!drawing) return;
-    e.preventDefault();
-    drawing = false; curPos = null;
-    if (pattern.length >= 4) {
-      setStatus('ok', `완성! ${kpLabel(pattern)} (${pattern.length}개 점)`);
-      btnSave.disabled = false;
-    } else if (pattern.length > 0) {
-      setStatus('error', `최소 4개 점 필요 (현재 ${pattern.length}개)`);
-      setTimeout(() => {
-        if (!drawing) { pattern = []; render(); setStatus('', '점을 연결하여 패턴을 그리세요'); }
-      }, 1600);
-    }
-    render();
-  }
-
-  canvas.addEventListener('mousedown',  onStart);
-  canvas.addEventListener('mousemove',  onMove);
-  canvas.addEventListener('mouseup',    onEnd);
-  canvas.addEventListener('touchstart', onStart, { passive: false });
-  canvas.addEventListener('touchmove',  onMove,  { passive: false });
-  canvas.addEventListener('touchend',   onEnd,   { passive: false });
-  canvas.addEventListener('contextmenu', e => e.preventDefault());
-
-  function setStatus(type, msg) {
-    statusPill.className = 'status-pill' + (type ? ' ' + type : '');
-    statusText.textContent = msg;
-  }
-
-  function kpLabel(pts) {
-    return pts.map(i => KEYPAD[i]).join(' → ');
-  }
-
-  btnReset.addEventListener('click', () => {
-    pattern = []; drawing = false; curPos = null;
-    btnSave.disabled = true; noteBar.classList.remove('show');
-    setStatus('', '점을 연결하여 패턴을 그리세요');
-    render();
   });
-
-  btnSave.addEventListener('click', () => {
-    noteBar.classList.add('show');
-    noteField.focus();
+}
+function getPos(e){
+  const rect=canvas.getBoundingClientRect(),sx=dispSize/rect.width,sy=dispSize/rect.height;
+  const src=e.touches?e.touches[0]:e;
+  return{x:(src.clientX-rect.left)*sx,y:(src.clientY-rect.top)*sy};
+}
+function nearestDot(x,y){
+  let best=-1,bestD=Infinity;
+  dots.forEach((p,i)=>{const d=Math.hypot(x-p.x,y-p.y);if(d<bestD){bestD=d;best=i;}});
+  return bestD<R_RING+6?best:-1;
+}
+function onStart(e){
+  e.preventDefault();drawing=true;pattern=[];btnSave.disabled=true;noteBar.classList.remove('show');
+  setStatus('','패턴 입력 중...');const pos=getPos(e);curPos=pos;
+  const d=nearestDot(pos.x,pos.y);if(d>=0)pattern.push(d);render();
+}
+function onMove(e){
+  if(!drawing)return;e.preventDefault();const pos=getPos(e);curPos=pos;
+  const d=nearestDot(pos.x,pos.y);if(d>=0&&!pattern.includes(d))pattern.push(d);render();
+}
+function onEnd(e){
+  if(!drawing)return;e.preventDefault();drawing=false;curPos=null;
+  if(pattern.length>=4){setStatus('ok',`완성! ${kpLabel(pattern)} (${pattern.length}개 점)`);btnSave.disabled=false;}
+  else if(pattern.length>0){
+    setStatus('error',`최소 4개 점 필요 (현재 ${pattern.length}개)`);
+    setTimeout(()=>{if(!drawing){pattern=[];render();setStatus('','점을 연결하여 패턴을 그리세요');}},1600);
+  }
+  render();
+}
+canvas.addEventListener('mousedown',onStart);canvas.addEventListener('mousemove',onMove);canvas.addEventListener('mouseup',onEnd);
+canvas.addEventListener('touchstart',onStart,{passive:false});canvas.addEventListener('touchmove',onMove,{passive:false});canvas.addEventListener('touchend',onEnd,{passive:false});
+canvas.addEventListener('contextmenu',e=>e.preventDefault());
+function setStatus(type,msg){statusPill.className='status-pill'+(type?' '+type:'');statusText.textContent=msg;}
+function kpLabel(pts){return pts.map(i=>KEYPAD[i]).join(' → ');}
+btnReset.addEventListener('click',()=>{pattern=[];drawing=false;curPos=null;btnSave.disabled=true;noteBar.classList.remove('show');setStatus('','점을 연결하여 패턴을 그리세요');render();});
+btnSave.addEventListener('click',()=>{noteBar.classList.add('show');noteField.focus();});
+function doSave(){
+  if(pattern.length<4)return;
+  const entry={id:Date.now(),pts:[...pattern],kp:kpLabel(pattern),note:noteField.value.trim(),ts:new Date().toISOString()};
+  history.unshift(entry);if(history.length>60)history.length=60;
+  persist();renderHistory();noteField.value='';noteBar.classList.remove('show');btnSave.disabled=true;pattern=[];render();currentPage=0;
+  setStatus('ok','저장 완료!');setTimeout(()=>setStatus('','점을 연결하여 패턴을 그리세요'),2000);
+}
+btnConfirm.addEventListener('click',doSave);noteField.addEventListener('keydown',e=>{if(e.key==='Enter')doSave();});
+btnDelAll.addEventListener('click',()=>{if(!history.length)return;if(!confirm('기록을 모두 삭제하시겠습니까?'))return;history=[];persist();renderHistory();});
+function persist(){try{localStorage.setItem('gp_hist2',JSON.stringify(history));}catch(_){}}
+function relTime(iso){
+  const s=(Date.now()-new Date(iso))/1000;
+  if(s<60)return '방금 전';if(s<3600)return `${Math.floor(s/60)}분 전`;
+  if(s<86400)return `${Math.floor(s/3600)}시간 전`;
+  return new Date(iso).toLocaleDateString('ko-KR',{month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+function drawMini(cnv,pts){
+  const dpr2=Math.min(window.devicePixelRatio||1,2),D=52;
+  cnv.width=D*dpr2;cnv.height=D*dpr2;const c=cnv.getContext('2d');
+  c.setTransform(dpr2,0,0,dpr2,0,0);c.fillStyle='#0C1621';c.fillRect(0,0,D,D);
+  const pad=D*0.18,step=(D-pad*2)/2,md=[];
+  for(let r=0;r<3;r++)for(let col=0;col<3;col++)md.push({x:pad+col*step,y:pad+r*step});
+  if(pts.length>=2){
+    c.beginPath();c.moveTo(md[pts[0]].x,md[pts[0]].y);
+    for(let i=1;i<pts.length;i++)c.lineTo(md[pts[i]].x,md[pts[i]].y);
+    c.strokeStyle='rgba(74,158,255,0.75)';c.lineWidth=1.5;c.lineCap='round';c.lineJoin='round';c.stroke();
+  }
+  md.forEach((p,i)=>{
+    const on=pts.includes(i);c.beginPath();c.arc(p.x,p.y,on?3.5:2,0,Math.PI*2);c.fillStyle=on?'#4A9EFF':'#1E3049';c.fill();
+    if(on){c.font='bold 5px sans-serif';c.fillStyle='#fff';c.textAlign='center';c.textBaseline='middle';c.fillText(KEYPAD[i],p.x,p.y);}
   });
-
-  function doSave() {
-    if (pattern.length < 4) return;
-    const entry = {
-      id:   Date.now(),
-      pts:  [...pattern],
-      kp:   kpLabel(pattern),
-      note: noteField.value.trim(),
-      ts:   new Date().toISOString()
-    };
-    history.unshift(entry);
-    if (history.length > 60) history.length = 60;
-    persist(); renderHistory();
-    noteField.value = '';
-    noteBar.classList.remove('show');
-    btnSave.disabled = true;
-    pattern = []; render();
-    currentPage = 0;
-    setStatus('ok', '저장 완료!');
-    setTimeout(() => setStatus('', '점을 연결하여 패턴을 그리세요'), 2000);
-  }
-
-  btnConfirm.addEventListener('click', doSave);
-  noteField.addEventListener('keydown', e => { if (e.key === 'Enter') doSave(); });
-
-  btnDelAll.addEventListener('click', () => {
-    if (!history.length) return;
-    if (!confirm('기록을 모두 삭제하시겠습니까?')) return;
-    history = []; persist(); renderHistory();
+}
+pagPrev.addEventListener('click',()=>{if(currentPage>0){currentPage--;renderHistory();}});
+pagNext.addEventListener('click',()=>{const tp=Math.ceil(history.length/PAGE_SIZE);if(currentPage<tp-1){currentPage++;renderHistory();}});
+function renderHistory(){
+  const total=history.length,totalPages=Math.max(1,Math.ceil(total/PAGE_SIZE));
+  currentPage=Math.min(currentPage,totalPages-1);histCount.textContent=`${total}개`;
+  if(!total){histList.innerHTML='<div class="hist-empty">저장된 패턴이 없습니다</div>';pagRow.style.display='none';return;}
+  const start=currentPage*PAGE_SIZE,pageItems=history.slice(start,start+PAGE_SIZE);
+  if(total>PAGE_SIZE){pagRow.style.display='flex';pagInfo.textContent=`${currentPage+1} / ${totalPages}`;pagPrev.disabled=currentPage===0;pagNext.disabled=currentPage===totalPages-1;}
+  else{pagRow.style.display='none';}
+  histList.innerHTML='';
+  pageItems.forEach(entry=>{
+    const item=document.createElement('div');item.className='hist-item';
+    const mw=document.createElement('div');mw.className='mini-wrap';
+    const mc=document.createElement('canvas');mc.className='mini';mw.appendChild(mc);
+    const body=document.createElement('div');body.className='hist-body';
+    const kp=document.createElement('div');kp.className='hist-kp';kp.textContent=entry.kp||kpLabel(entry.pts);
+    const note=document.createElement('div');note.className='hist-note'+(entry.note?'':' ph');note.textContent=entry.note||`점 ${entry.pts.length}개`;
+    const ts=document.createElement('div');ts.className='hist-time';ts.textContent=relTime(entry.ts);
+    body.append(kp,note,ts);
+    const xBtn=document.createElement('button');xBtn.className='btn-x';xBtn.title='삭제';xBtn.innerHTML='&#x2715;';
+    xBtn.addEventListener('click',()=>{history=history.filter(h=>h.id!==entry.id);persist();renderHistory();});
+    item.append(mw,body,xBtn);histList.appendChild(item);
+    requestAnimationFrame(()=>drawMini(mc,entry.pts));
   });
+}
+window.addEventListener('resize',resize);resize();renderHistory();
 
-  function persist() {
-    try { localStorage.setItem('gp_hist2', JSON.stringify(history)); } catch (_) {}
+// PWA
+(function(){
+  const metas=[{name:'mobile-web-app-capable',content:'yes'},{name:'apple-mobile-web-app-capable',content:'yes'},{name:'apple-mobile-web-app-status-bar-style',content:'black-translucent'},{name:'apple-mobile-web-app-title',content:'패턴 찾기'},{name:'theme-color',content:'#0C1621'}];
+  metas.forEach(({name,content})=>{if(document.querySelector(`meta[name="${name}"]`))return;const m=document.createElement('meta');m.name=name;m.content=content;document.head.appendChild(m);});
+  function genIcon(size){
+    const c=document.createElement('canvas');c.width=c.height=size;const x=c.getContext('2d');
+    x.fillStyle='#0C1621';if(x.roundRect){x.beginPath();x.roundRect(0,0,size,size,size*0.18);x.fill();}else{x.fillRect(0,0,size,size);}
+    const pad=size*0.2,step=(size-pad*2)/2,linePts=[0,4,8];
+    x.beginPath();x.moveTo(pad,pad);x.lineTo(pad+step,pad+step);x.lineTo(pad+step*2,pad+step*2);
+    x.strokeStyle='rgba(74,158,255,0.8)';x.lineWidth=size*0.045;x.lineCap='round';x.lineJoin='round';x.stroke();
+    for(let row=0;row<3;row++)for(let col=0;col<3;col++){const idx=row*3+col,active=linePts.includes(idx),cx=pad+col*step,cy=pad+row*step;x.beginPath();x.arc(cx,cy,size*(active?0.072:0.044),0,Math.PI*2);x.fillStyle=active?'#4A9EFF':'#1E3049';x.fill();}
+    return c.toDataURL('image/png');
   }
+  if(!document.querySelector('link[rel="apple-touch-icon"]')){const li=document.createElement('link');li.rel='apple-touch-icon';li.href=genIcon(180);document.head.appendChild(li);}
+  if(!document.querySelector('link[rel="manifest"]')){try{const manifest={name:'스마트폰 패턴 찾기',short_name:'패턴 찾기',description:'스마트폰 패턴 잠금 연습 앱 — by T9',start_url:location.href,scope:location.href,display:'standalone',background_color:'#0C1621',theme_color:'#0C1621',orientation:'portrait-primary',lang:'ko',icons:[{src:genIcon(192),sizes:'192x192',type:'image/png',purpose:'any maskable'},{src:genIcon(512),sizes:'512x512',type:'image/png',purpose:'any maskable'}]};const ml=document.createElement('link');ml.rel='manifest';ml.href=URL.createObjectURL(new Blob([JSON.stringify(manifest)],{type:'application/json'}));document.head.appendChild(ml);}catch(_){}}
+})();
 
-  function relTime(iso) {
-    const s = (Date.now() - new Date(iso)) / 1000;
-    if (s < 60)    return '방금 전';
-    if (s < 3600)  return `${Math.floor(s / 60)}분 전`;
-    if (s < 86400) return `${Math.floor(s / 3600)}시간 전`;
-    return new Date(iso).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-  }
-
-  function drawMini(cnv, pts) {
-    const dpr2 = Math.min(window.devicePixelRatio || 1, 2);
-    const D = 52;
-    cnv.width = D * dpr2; cnv.height = D * dpr2;
-    const c = cnv.getContext('2d');
-    c.setTransform(dpr2, 0, 0, dpr2, 0, 0);
-    c.fillStyle = '#0C1621'; c.fillRect(0, 0, D, D);
-    const pad = D * 0.18, step = (D - pad * 2) / 2;
-    const md = [];
-    for (let r = 0; r < 3; r++)
-      for (let col = 0; col < 3; col++)
-        md.push({ x: pad + col * step, y: pad + r * step });
-    if (pts.length >= 2) {
-      c.beginPath();
-      c.moveTo(md[pts[0]].x, md[pts[0]].y);
-      for (let i = 1; i < pts.length; i++) c.lineTo(md[pts[i]].x, md[pts[i]].y);
-      c.strokeStyle = 'rgba(74,158,255,0.75)';
-      c.lineWidth = 1.5; c.lineCap = 'round'; c.lineJoin = 'round';
-      c.stroke();
-    }
-    md.forEach((p, i) => {
-      const on = pts.includes(i);
-      c.beginPath();
-      c.arc(p.x, p.y, on ? 3.5 : 2, 0, Math.PI * 2);
-      c.fillStyle = on ? '#4A9EFF' : '#1E3049';
-      c.fill();
-      if (on) {
-        c.font = `bold 5px sans-serif`;
-        c.fillStyle = '#fff';
-        c.textAlign = 'center';
-        c.textBaseline = 'middle';
-        c.fillText(KEYPAD[i], p.x, p.y);
-      }
-    });
-  }
-
-  pagPrev.addEventListener('click', () => {
-    if (currentPage > 0) { currentPage--; renderHistory(); }
-  });
-  pagNext.addEventListener('click', () => {
-    const tp = Math.ceil(history.length / PAGE_SIZE);
-    if (currentPage < tp - 1) { currentPage++; renderHistory(); }
-  });
-
-  function renderHistory() {
-    const total = history.length;
-    const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-    currentPage = Math.min(currentPage, totalPages - 1);
-    histCount.textContent = `${total}개`;
-    if (!total) {
-      histList.innerHTML = '<div class="hist-empty">저장된 패턴이 없습니다</div>';
-      pagRow.style.display = 'none';
-      return;
-    }
-    const start = currentPage * PAGE_SIZE;
-    const pageItems = history.slice(start, start + PAGE_SIZE);
-    if (total > PAGE_SIZE) {
-      pagRow.style.display = 'flex';
-      pagInfo.textContent = `${currentPage + 1} / ${totalPages}`;
-      pagPrev.disabled = currentPage === 0;
-      pagNext.disabled = currentPage === totalPages - 1;
-    } else {
-      pagRow.style.display = 'none';
-    }
-    histList.innerHTML = '';
-    pageItems.forEach(entry => {
-      const item = document.createElement('div');
-      item.className = 'hist-item';
-      const mw = document.createElement('div');
-      mw.className = 'mini-wrap';
-      const mc = document.createElement('canvas');
-      mc.className = 'mini';
-      mw.appendChild(mc);
-      const body = document.createElement('div');
-      body.className = 'hist-body';
-      const kp = document.createElement('div');
-      kp.className = 'hist-kp';
-      kp.textContent = entry.kp || kpLabel(entry.pts);
-      const note = document.createElement('div');
-      note.className = 'hist-note' + (entry.note ? '' : ' ph');
-      note.textContent = entry.note || `점 ${entry.pts.length}개`;
-      const ts = document.createElement('div');
-      ts.className = 'hist-time';
-      ts.textContent = relTime(entry.ts);
-      body.append(kp, note, ts);
-      const xBtn = document.createElement('button');
-      xBtn.className = 'btn-x';
-      xBtn.title = '삭제';
-      xBtn.innerHTML = '&#x2715;';
-      xBtn.addEventListener('click', () => {
-        history = history.filter(h => h.id !== entry.id);
-        persist(); renderHistory();
-      });
-      item.append(mw, body, xBtn);
-      histList.appendChild(item);
-      requestAnimationFrame(() => drawMini(mc, entry.pts));
-    });
-  }
-
-  window.addEventListener('resize', resize);
-  resize();
-  renderHistory();
-
-  /* ── PWA ── */
-  (function setupPWA() {
-    const metas = [
-      { name: 'mobile-web-app-capable',                content: 'yes' },
-      { name: 'apple-mobile-web-app-capable',          content: 'yes' },
-      { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
-      { name: 'apple-mobile-web-app-title',            content: '패턴 찾기' },
-      { name: 'theme-color',                           content: '#0C1621' },
-    ];
-    metas.forEach(({ name, content }) => {
-      if (document.querySelector(`meta[name="${name}"]`)) return;
-      const m = document.createElement('meta');
-      m.name = name; m.content = content;
-      document.head.appendChild(m);
-    });
-
-    function genIcon(size) {
-      const c = document.createElement('canvas');
-      c.width = c.height = size;
-      const x = c.getContext('2d');
-      x.fillStyle = '#0C1621';
-      if (x.roundRect) {
-        x.beginPath(); x.roundRect(0, 0, size, size, size * 0.18); x.fill();
-      } else { x.fillRect(0, 0, size, size); }
-      const pad = size * 0.2, step = (size - pad * 2) / 2;
-      const linePts = [0, 4, 8];
-      x.beginPath();
-      x.moveTo(pad, pad);
-      x.lineTo(pad + step, pad + step);
-      x.lineTo(pad + step * 2, pad + step * 2);
-      x.strokeStyle = 'rgba(74,158,255,0.8)';
-      x.lineWidth = size * 0.045; x.lineCap = 'round'; x.lineJoin = 'round';
-      x.stroke();
-      for (let row = 0; row < 3; row++) {
-        for (let col = 0; col < 3; col++) {
-          const idx = row * 3 + col;
-          const active = linePts.includes(idx);
-          x.beginPath();
-          x.arc(pad + col * step, pad + row * step, size * (active ? 0.072 : 0.044), 0, Math.PI * 2);
-          x.fillStyle = active ? '#4A9EFF' : '#1E3049';
-          x.fill();
-        }
-      }
-      return c.toDataURL('image/png');
-    }
-
-    if (!document.querySelector('link[rel="apple-touch-icon"]')) {
-      const li = document.createElement('link');
-      li.rel = 'apple-touch-icon'; li.href = genIcon(180);
-      document.head.appendChild(li);
-    }
-
-    if (!document.querySelector('link[rel="manifest"]')) {
-      try {
-        const manifest = {
-          name: '스마트폰 패턴 찾기', short_name: '패턴 찾기',
-          description: '스마트폰 패턴 잠금 연습 앱 — by T9',
-          start_url: location.href, scope: location.href,
-          display: 'standalone', background_color: '#0C1621',
-          theme_color: '#0C1621', orientation: 'portrait-primary', lang: 'ko',
-          icons: [
-            { src: genIcon(192), sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
-            { src: genIcon(512), sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
-          ]
-        };
-        const ml = document.createElement('link');
-        ml.rel = 'manifest';
-        ml.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], { type: 'application/json' }));
-        document.head.appendChild(ml);
-      } catch (_) {}
-    }
-  })();
-
-  /* ── Install modal ── */
-  (function setupInstallUI() {
-    const modal    = document.getElementById('installModal');
-    const openBtn  = document.getElementById('installGuideBtn');
-    const closeX   = document.getElementById('modalCloseX');
-    const closeBtn = document.getElementById('modalCloseBtn');
-    const urlText  = document.getElementById('urlText');
-    const copyBtn  = document.getElementById('copyUrlBtn');
-    const banner   = document.getElementById('installBanner');
-    const bannerBtn= document.getElementById('bannerInstallBtn');
-    let deferredPrompt = null;
-
-    function openModal() { urlText.textContent = location.href; modal.classList.add('open'); document.body.style.overflow = 'hidden'; }
-    function closeModal() { modal.classList.remove('open'); document.body.style.overflow = ''; }
-
-    openBtn.addEventListener('click', openModal);
-    closeX.addEventListener('click', closeModal);
-    closeBtn.addEventListener('click', closeModal);
-    modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
-
-    copyBtn.addEventListener('click', () => {
-      navigator.clipboard.writeText(location.href).then(() => {
-        copyBtn.textContent = '✅';
-        setTimeout(() => { copyBtn.textContent = '📋'; }, 1800);
-      }).catch(() => {
-        copyBtn.textContent = '❌';
-        setTimeout(() => { copyBtn.textContent = '📋'; }, 1500);
-      });
-    });
-
-    window.addEventListener('beforeinstallprompt', e => {
-      e.preventDefault(); deferredPrompt = e; banner.classList.add('show');
-    });
-
-    bannerBtn.addEventListener('click', () => {
-      if (!deferredPrompt) return;
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then(choice => {
-        if (choice.outcome === 'accepted') banner.classList.remove('show');
-        deferredPrompt = null;
-      });
-    });
-
-    if (window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true) {
-      if (openBtn) openBtn.style.display = 'none';
-    }
-  })();
-
+// Install modal
+(function(){
+  const modal=document.getElementById('installModal'),openBtn=document.getElementById('installGuideBtn');
+  const closeX=document.getElementById('modalCloseX'),closeBtn=document.getElementById('modalCloseBtn');
+  const urlText=document.getElementById('urlText'),copyBtn=document.getElementById('copyUrlBtn');
+  const banner=document.getElementById('installBanner'),bannerBtn=document.getElementById('bannerInstallBtn');
+  let deferredPrompt=null;
+  function openModal(){urlText.textContent=location.href;modal.classList.add('open');document.body.style.overflow='hidden';}
+  function closeModal(){modal.classList.remove('open');document.body.style.overflow='';}
+  openBtn.addEventListener('click',openModal);closeX.addEventListener('click',closeModal);closeBtn.addEventListener('click',closeModal);
+  modal.addEventListener('click',e=>{if(e.target===modal)closeModal();});
+  copyBtn.addEventListener('click',()=>{navigator.clipboard.writeText(location.href).then(()=>{copyBtn.textContent='✅';setTimeout(()=>copyBtn.textContent='📋',1800);}).catch(()=>{copyBtn.textContent='❌';setTimeout(()=>copyBtn.textContent='📋',1500);});});
+  window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;banner.classList.add('show');});
+  bannerBtn.addEventListener('click',()=>{if(!deferredPrompt)return;deferredPrompt.prompt();deferredPrompt.userChoice.then(r=>{if(r.outcome==='accepted')banner.classList.remove('show');deferredPrompt=null;});});
+  if(window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true){if(openBtn)openBtn.style.display='none';}
+})();
 })();
 </script>
-
-<footer class="app-footer">
-  <div class="footer-line1">
-    <span class="footer-by">by. T9</span>
-    <span class="footer-divider">·</span>
-    <span>© 2026 스마트폰 패턴 찾기</span>
-    <span class="footer-divider">·</span>
-    <a class="footer-link" href="mailto:dotol9u@gmail.com">dotol9u@gmail.com</a>
-  </div>
-  <div class="footer-notice">본 도구는 개인 패턴 분실 시 연습 목적으로만 사용하세요.</div>
-</footer>
-
 </body>
 </html>
