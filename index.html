@@ -1,3 +1,8 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>스마트폰 패턴 찾기</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
 <style>
@@ -43,7 +48,6 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* prevent page scroll while drawing */
   touch-action: pan-y;
 }
 
@@ -57,53 +61,25 @@ body {
 
 /* ── Header ── */
 .header {
-  padding: 16px 20px 12px;
+  padding: 10px 20px 8px;
   text-align: center;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   position: sticky;
   top: env(safe-area-inset-top, 0px);
   z-index: 10;
+  position: relative;
 }
-.header h1 { font-size: 16px; font-weight: 500; }
-.header p  { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
-
-/* ── Keypad legend ── */
-.keypad-legend {
-  display: flex;
-  justify-content: center;
-  gap: 6px;
-  padding: 10px 20px 0;
-  align-items: center;
-}
-.keypad-legend span {
-  font-size: 11px;
-  color: var(--text-sub);
-}
-.keypad-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2px;
-  width: 54px;
-}
-.kp-cell {
-  background: var(--surface2);
-  border-radius: 3px;
-  font-size: 9px;
-  font-weight: 700;
-  color: var(--primary);
-  text-align: center;
-  padding: 2px 0;
-  font-variant-numeric: tabular-nums;
-}
+.header h1 { font-size: 15px; font-weight: 500; }
+.header p  { font-size: 11px; color: var(--text-sub); margin-top: 1px; }
 
 /* ── Pattern area ── */
 .pattern-zone {
-  padding: 14px 20px 16px;
+  padding: 8px 12px 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
 }
 
 .status-pill {
@@ -133,14 +109,14 @@ body {
 /* Canvas fills available width on mobile */
 .canvas-shell {
   position: relative;
-  width: min(300px, calc(100vw - 56px));
+  width: min(380px, calc(100vw - 16px));
   aspect-ratio: 1;
   user-select: none;
   -webkit-user-select: none;
   touch-action: none;
-  border-radius: 20px;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0,0,0,.4), 0 0 0 1px var(--border);
+  box-shadow: 0 4px 24px rgba(0,0,0,.5), 0 0 0 1px var(--border);
 }
 canvas#pat { display: block; width: 100%; height: 100%; }
 
@@ -150,7 +126,7 @@ canvas#pat { display: block; width: 100%; height: 100%; }
   padding: 9px 22px; border-radius: 999px; border: none;
   font-family: inherit; font-size: 14px; font-weight: 500;
   cursor: pointer; transition: filter .15s, opacity .15s; outline: none;
-  min-height: 44px; /* iOS tap target */
+  min-height: 44px;
 }
 .btn:focus-visible { box-shadow: 0 0 0 3px var(--primary-glow); }
 .btn-ghost {
@@ -163,7 +139,7 @@ canvas#pat { display: block; width: 100%; height: 100%; }
 .btn-blue:hover:not(:disabled), .btn-blue:active:not(:disabled) { filter: brightness(1.1); }
 
 /* ── Note input ── */
-.note-bar { width: min(300px, calc(100vw - 56px)); display: none; gap: 8px; align-items: center; }
+.note-bar { width: min(380px, calc(100vw - 16px)); display: none; gap: 8px; align-items: center; }
 .note-bar.show { display: flex; }
 .note-field {
   flex: 1; background: var(--surface2); border: 1px solid var(--border);
@@ -261,7 +237,6 @@ canvas.mini { display: block; width: 52px; height: 52px; }
 .footer-notice { font-size: 10px; color: var(--text-sub); opacity: 0.55; line-height: 1.5; }
 
 /* ── Install button (header) ── */
-.header { position: relative; }
 .install-fab {
   position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
   background: var(--primary); color: #fff; border: none; border-radius: 99px;
@@ -341,9 +316,10 @@ canvas.mini { display: block; width: 52px; height: 52px; }
   white-space: nowrap; font-family: inherit;
 }
 </style>
+</head>
+<body>
 
 <div class="app">
-  <!-- Android install banner (shows only when browser fires beforeinstallprompt) -->
   <div class="install-banner" id="installBanner">
     <span>📲 홈 화면에 앱으로 설치하기</span>
     <button id="bannerInstallBtn">설치</button>
@@ -397,7 +373,6 @@ canvas.mini { display: block; width: 52px; height: 52px; }
   </div>
 </div>
 
-<!-- Install Guide Modal -->
 <div class="modal-overlay" id="installModal" role="dialog" aria-modal="true" aria-label="앱 설치 안내">
   <div class="modal-box">
     <div class="modal-hd">
@@ -405,12 +380,10 @@ canvas.mini { display: block; width: 52px; height: 52px; }
       <button class="modal-x" id="modalCloseX">✕</button>
     </div>
     <p class="modal-sub">설치하면 앱처럼 전체화면으로 실행되며 오프라인에서도 사용할 수 있습니다.</p>
-
     <div class="modal-url" id="siteUrl">
       <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" id="urlText">—</span>
       <button class="copy-url-btn" id="copyUrlBtn" title="URL 복사">📋</button>
     </div>
-
     <div class="modal-os">
       <div class="modal-os-title">🤖 Android (Chrome)</div>
       <div class="modal-step">① Chrome 브라우저로 위 주소를 여세요</div>
@@ -418,7 +391,6 @@ canvas.mini { display: block; width: 52px; height: 52px; }
       <div class="modal-step">③ <b>"홈 화면에 추가"</b> 선택</div>
       <div class="modal-step">④ 앱 이름 확인 후 <b>"추가"</b> 탭</div>
     </div>
-
     <div class="modal-os">
       <div class="modal-os-title">🍎 iPhone / iPad (Safari)</div>
       <div class="modal-step">① Safari 브라우저로 위 주소를 여세요</div>
@@ -426,7 +398,6 @@ canvas.mini { display: block; width: 52px; height: 52px; }
       <div class="modal-step">③ <b>"홈 화면에 추가"</b> 선택</div>
       <div class="modal-step">④ <b>"추가"</b> 탭 — 완료!</div>
     </div>
-
     <button class="modal-btn-close" id="modalCloseBtn">닫기</button>
   </div>
 </div>
@@ -435,13 +406,12 @@ canvas.mini { display: block; width: 52px; height: 52px; }
 (function () {
   'use strict';
 
-  // ── Keypad mapping: grid index (0-8, row-major) → phone keypad number ──
-  // Grid layout:  [0][1][2]     Keypad:  7  8  9
-  //               [3][4][5]              4  5  6
-  //               [6][7][8]              1  2  3
+  // 키패드 매핑: 그리드 인덱스(0-8) → 전화 키패드 번호
+  // [0][1][2] → 7 8 9
+  // [3][4][5] → 4 5 6
+  // [6][7][8] → 1 2 3
   const KEYPAD = [7, 8, 9, 4, 5, 6, 1, 2, 3];
 
-  /* ── DOM ── */
   const canvas     = document.getElementById('pat');
   const shell      = document.getElementById('shell');
   const ctx        = canvas.getContext('2d');
@@ -460,7 +430,6 @@ canvas.mini { display: block; width: 52px; height: 52px; }
   const pagNext    = document.getElementById('pagNext');
   const pagInfo    = document.getElementById('pagInfo');
 
-  /* ── State ── */
   const PAGE_SIZE = 4;
   let currentPage = 0;
   let pattern  = [];
@@ -473,7 +442,6 @@ canvas.mini { display: block; width: 52px; height: 52px; }
 
   try { const s = localStorage.getItem('gp_hist2'); if (s) history = JSON.parse(s); } catch (_) {}
 
-  /* ── Sizing ── */
   function resize() {
     dpr      = Math.min(window.devicePixelRatio || 1, 3);
     dispSize = shell.offsetWidth;
@@ -485,7 +453,7 @@ canvas.mini { display: block; width: 52px; height: 52px; }
   }
 
   function computeDots() {
-    const pad  = dispSize * 0.175;
+    const pad  = dispSize * 0.14;
     const step = (dispSize - pad * 2) / 2;
     dots = [];
     for (let r = 0; r < 3; r++)
@@ -493,7 +461,6 @@ canvas.mini { display: block; width: 52px; height: 52px; }
         dots.push({ x: pad + c * step, y: pad + r * step });
   }
 
-  /* ── Colors ── */
   const C = {
     bg:     '#0C1621',
     line:   'rgba(74,158,255,0.65)',
@@ -504,17 +471,15 @@ canvas.mini { display: block; width: 52px; height: 52px; }
     stroke: 'rgba(74,158,255,0.42)',
     num:    'rgba(100,148,190,0.85)',
   };
-  const R_ACT  = 13;
-  const R_RING = 22;
-  const R_IDLE = 8;
+  const R_ACT  = 20;
+  const R_RING = 34;
+  const R_IDLE = 14;
 
-  /* ── Render ── */
   function render() {
     const s = dispSize;
     ctx.fillStyle = C.bg;
     ctx.fillRect(0, 0, s, s);
 
-    // Connecting lines
     if (pattern.length >= 2) {
       ctx.beginPath();
       const {x: x0, y: y0} = dots[pattern[0]];
@@ -524,32 +489,29 @@ canvas.mini { display: block; width: 52px; height: 52px; }
         ctx.lineTo(x, y);
       }
       ctx.strokeStyle = C.line;
-      ctx.lineWidth   = 2.5;
+      ctx.lineWidth   = 4;
       ctx.lineCap     = 'round';
       ctx.lineJoin    = 'round';
       ctx.stroke();
     }
 
-    // Trailing line to finger/cursor
     if (drawing && pattern.length > 0 && curPos) {
       const last = dots[pattern[pattern.length - 1]];
       ctx.beginPath();
       ctx.moveTo(last.x, last.y);
       ctx.lineTo(curPos.x, curPos.y);
       ctx.strokeStyle = C.trail;
-      ctx.lineWidth   = 2;
+      ctx.lineWidth   = 3;
       ctx.lineCap     = 'round';
       ctx.stroke();
     }
 
-    // Dots
     dots.forEach((p, i) => {
       const active  = pattern.includes(i);
-      const kpNum   = KEYPAD[i];           // keypad number for this dot
+      const kpNum   = KEYPAD[i];
       const drawOrd = active ? (pattern.indexOf(i) + 1) : 0;
 
       if (active) {
-        // Outer glow ring
         ctx.beginPath();
         ctx.arc(p.x, p.y, R_RING, 0, Math.PI * 2);
         ctx.fillStyle = C.ring;
@@ -560,33 +522,30 @@ canvas.mini { display: block; width: 52px; height: 52px; }
         ctx.lineWidth = 1.2;
         ctx.stroke();
 
-        // Blue filled circle
         ctx.beginPath();
         ctx.arc(p.x, p.y, R_ACT, 0, Math.PI * 2);
         ctx.fillStyle = C.dot;
         ctx.fill();
 
-        // Keypad number inside dot (white, bold)
-        ctx.font = `bold 11px Roboto, sans-serif`;
+        ctx.font = `bold 14px Roboto, sans-serif`;
         ctx.fillStyle = '#fff';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(kpNum, p.x, p.y);
 
-        // Draw order: small badge top-right of ring
         if (pattern.length > 1) {
-          const bx = p.x + R_RING * 0.7;
-          const by = p.y - R_RING * 0.7;
+          const bx = p.x + R_RING * 0.68;
+          const by = p.y - R_RING * 0.68;
           ctx.beginPath();
-          ctx.arc(bx, by, 7, 0, Math.PI * 2);
+          ctx.arc(bx, by, 9, 0, Math.PI * 2);
           ctx.fillStyle = '#0C1621';
           ctx.fill();
           ctx.beginPath();
-          ctx.arc(bx, by, 7, 0, Math.PI * 2);
+          ctx.arc(bx, by, 9, 0, Math.PI * 2);
           ctx.strokeStyle = C.dot;
-          ctx.lineWidth = 1;
+          ctx.lineWidth = 1.5;
           ctx.stroke();
-          ctx.font = `bold 7px Roboto, sans-serif`;
+          ctx.font = `bold 9px Roboto, sans-serif`;
           ctx.fillStyle = C.dot;
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
@@ -594,29 +553,25 @@ canvas.mini { display: block; width: 52px; height: 52px; }
         }
 
       } else {
-        // Idle dot
         ctx.beginPath();
         ctx.arc(p.x, p.y, R_IDLE, 0, Math.PI * 2);
         ctx.fillStyle = C.idle;
         ctx.fill();
 
-        // Center highlight
         ctx.beginPath();
         ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
         ctx.fillStyle = 'rgba(100,148,190,0.4)';
         ctx.fill();
 
-        // Keypad number below dot (dim label)
-        ctx.font = `500 9px Roboto, sans-serif`;
+        ctx.font = `500 12px Roboto, sans-serif`;
         ctx.fillStyle = C.num;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'top';
-        ctx.fillText(kpNum, p.x, p.y + R_IDLE + 2);
+        ctx.fillText(kpNum, p.x, p.y + R_IDLE + 3);
       }
     });
   }
 
-  /* ── Input ── */
   function getPos(e) {
     const rect = canvas.getBoundingClientRect();
     const sx = dispSize / rect.width;
@@ -682,22 +637,17 @@ canvas.mini { display: block; width: 52px; height: 52px; }
   canvas.addEventListener('touchstart', onStart, { passive: false });
   canvas.addEventListener('touchmove',  onMove,  { passive: false });
   canvas.addEventListener('touchend',   onEnd,   { passive: false });
-  // Prevent context menu on long press
   canvas.addEventListener('contextmenu', e => e.preventDefault());
 
-  /* ── Status ── */
   function setStatus(type, msg) {
     statusPill.className = 'status-pill' + (type ? ' ' + type : '');
     statusText.textContent = msg;
   }
 
-  /* ── Labels ── */
-  // Convert pattern indices → keypad numbers sequence string
   function kpLabel(pts) {
     return pts.map(i => KEYPAD[i]).join(' → ');
   }
 
-  /* ── Controls ── */
   btnReset.addEventListener('click', () => {
     pattern = []; drawing = false; curPos = null;
     btnSave.disabled = true; noteBar.classList.remove('show');
@@ -715,7 +665,7 @@ canvas.mini { display: block; width: 52px; height: 52px; }
     const entry = {
       id:   Date.now(),
       pts:  [...pattern],
-      kp:   kpLabel(pattern),           // keypad sequence string
+      kp:   kpLabel(pattern),
       note: noteField.value.trim(),
       ts:   new Date().toISOString()
     };
@@ -740,12 +690,10 @@ canvas.mini { display: block; width: 52px; height: 52px; }
     history = []; persist(); renderHistory();
   });
 
-  /* ── Persistence ── */
   function persist() {
     try { localStorage.setItem('gp_hist2', JSON.stringify(history)); } catch (_) {}
   }
 
-  /* ── History render ── */
   function relTime(iso) {
     const s = (Date.now() - new Date(iso)) / 1000;
     if (s < 60)    return '방금 전';
@@ -761,13 +709,11 @@ canvas.mini { display: block; width: 52px; height: 52px; }
     const c = cnv.getContext('2d');
     c.setTransform(dpr2, 0, 0, dpr2, 0, 0);
     c.fillStyle = '#0C1621'; c.fillRect(0, 0, D, D);
-
     const pad = D * 0.18, step = (D - pad * 2) / 2;
     const md = [];
     for (let r = 0; r < 3; r++)
       for (let col = 0; col < 3; col++)
         md.push({ x: pad + col * step, y: pad + r * step });
-
     if (pts.length >= 2) {
       c.beginPath();
       c.moveTo(md[pts[0]].x, md[pts[0]].y);
@@ -782,7 +728,6 @@ canvas.mini { display: block; width: 52px; height: 52px; }
       c.arc(p.x, p.y, on ? 3.5 : 2, 0, Math.PI * 2);
       c.fillStyle = on ? '#4A9EFF' : '#1E3049';
       c.fill();
-      // Show keypad number in mini
       if (on) {
         c.font = `bold 5px sans-serif`;
         c.fillStyle = '#fff';
@@ -793,7 +738,6 @@ canvas.mini { display: block; width: 52px; height: 52px; }
     });
   }
 
-  /* ── Pagination controls ── */
   pagPrev.addEventListener('click', () => {
     if (currentPage > 0) { currentPage--; renderHistory(); }
   });
@@ -806,19 +750,14 @@ canvas.mini { display: block; width: 52px; height: 52px; }
     const total = history.length;
     const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
     currentPage = Math.min(currentPage, totalPages - 1);
-
     histCount.textContent = `${total}개`;
     if (!total) {
       histList.innerHTML = '<div class="hist-empty">저장된 패턴이 없습니다</div>';
       pagRow.style.display = 'none';
       return;
     }
-
-    // Slice for current page
     const start = currentPage * PAGE_SIZE;
     const pageItems = history.slice(start, start + PAGE_SIZE);
-
-    // Pagination controls
     if (total > PAGE_SIZE) {
       pagRow.style.display = 'flex';
       pagInfo.textContent = `${currentPage + 1} / ${totalPages}`;
@@ -827,37 +766,27 @@ canvas.mini { display: block; width: 52px; height: 52px; }
     } else {
       pagRow.style.display = 'none';
     }
-
     histList.innerHTML = '';
     pageItems.forEach(entry => {
       const item = document.createElement('div');
       item.className = 'hist-item';
-
       const mw = document.createElement('div');
       mw.className = 'mini-wrap';
       const mc = document.createElement('canvas');
       mc.className = 'mini';
       mw.appendChild(mc);
-
       const body = document.createElement('div');
       body.className = 'hist-body';
-
-      // Keypad number sequence (primary display)
       const kp = document.createElement('div');
       kp.className = 'hist-kp';
-      // Use stored kp string or recompute
       kp.textContent = entry.kp || kpLabel(entry.pts);
-
       const note = document.createElement('div');
       note.className = 'hist-note' + (entry.note ? '' : ' ph');
       note.textContent = entry.note || `점 ${entry.pts.length}개`;
-
       const ts = document.createElement('div');
       ts.className = 'hist-time';
       ts.textContent = relTime(entry.ts);
-
       body.append(kp, note, ts);
-
       const xBtn = document.createElement('button');
       xBtn.className = 'btn-x';
       xBtn.title = '삭제';
@@ -866,28 +795,24 @@ canvas.mini { display: block; width: 52px; height: 52px; }
         history = history.filter(h => h.id !== entry.id);
         persist(); renderHistory();
       });
-
       item.append(mw, body, xBtn);
       histList.appendChild(item);
-
       requestAnimationFrame(() => drawMini(mc, entry.pts));
     });
   }
 
-  /* ── Init ── */
   window.addEventListener('resize', resize);
   resize();
   renderHistory();
 
-  /* ── PWA: inject meta tags & manifest ── */
+  /* ── PWA ── */
   (function setupPWA() {
-    // Apple / mobile web app meta tags
     const metas = [
-      { name: 'mobile-web-app-capable',           content: 'yes' },
-      { name: 'apple-mobile-web-app-capable',     content: 'yes' },
+      { name: 'mobile-web-app-capable',                content: 'yes' },
+      { name: 'apple-mobile-web-app-capable',          content: 'yes' },
       { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
-      { name: 'apple-mobile-web-app-title',       content: '패턴 찾기' },
-      { name: 'theme-color',                      content: '#0C1621' },
+      { name: 'apple-mobile-web-app-title',            content: '패턴 찾기' },
+      { name: 'theme-color',                           content: '#0C1621' },
     ];
     metas.forEach(({ name, content }) => {
       if (document.querySelector(`meta[name="${name}"]`)) return;
@@ -896,23 +821,16 @@ canvas.mini { display: block; width: 52px; height: 52px; }
       document.head.appendChild(m);
     });
 
-    // Generate a simple icon via canvas
     function genIcon(size) {
       const c = document.createElement('canvas');
       c.width = c.height = size;
       const x = c.getContext('2d');
-      const r = size * 0.18;
-      // Rounded rect background
       x.fillStyle = '#0C1621';
       if (x.roundRect) {
-        x.beginPath(); x.roundRect(0, 0, size, size, r); x.fill();
-      } else {
-        x.fillRect(0, 0, size, size);
-      }
-      // 3×3 dot grid with a sample pattern (diagonal: 0→4→8)
+        x.beginPath(); x.roundRect(0, 0, size, size, size * 0.18); x.fill();
+      } else { x.fillRect(0, 0, size, size); }
       const pad = size * 0.2, step = (size - pad * 2) / 2;
       const linePts = [0, 4, 8];
-      // Draw line
       x.beginPath();
       x.moveTo(pad, pad);
       x.lineTo(pad + step, pad + step);
@@ -920,14 +838,12 @@ canvas.mini { display: block; width: 52px; height: 52px; }
       x.strokeStyle = 'rgba(74,158,255,0.8)';
       x.lineWidth = size * 0.045; x.lineCap = 'round'; x.lineJoin = 'round';
       x.stroke();
-      // Draw dots
       for (let row = 0; row < 3; row++) {
         for (let col = 0; col < 3; col++) {
           const idx = row * 3 + col;
           const active = linePts.includes(idx);
-          const cx = pad + col * step, cy = pad + row * step;
           x.beginPath();
-          x.arc(cx, cy, size * (active ? 0.072 : 0.044), 0, Math.PI * 2);
+          x.arc(pad + col * step, pad + row * step, size * (active ? 0.072 : 0.044), 0, Math.PI * 2);
           x.fillStyle = active ? '#4A9EFF' : '#1E3049';
           x.fill();
         }
@@ -935,44 +851,34 @@ canvas.mini { display: block; width: 52px; height: 52px; }
       return c.toDataURL('image/png');
     }
 
-    // Apple touch icon
     if (!document.querySelector('link[rel="apple-touch-icon"]')) {
-      const icon = genIcon(180);
       const li = document.createElement('link');
-      li.rel = 'apple-touch-icon'; li.href = icon;
+      li.rel = 'apple-touch-icon'; li.href = genIcon(180);
       document.head.appendChild(li);
     }
 
-    // Web App Manifest (inline via blob URL — best-effort)
     if (!document.querySelector('link[rel="manifest"]')) {
       try {
-        const icon192 = genIcon(192);
-        const icon512 = genIcon(512);
         const manifest = {
-          name: '스마트폰 패턴 찾기',
-          short_name: '패턴 찾기',
+          name: '스마트폰 패턴 찾기', short_name: '패턴 찾기',
           description: '스마트폰 패턴 잠금 연습 앱 — by T9',
-          start_url: location.href,
-          scope: location.href,
-          display: 'standalone',
-          background_color: '#0C1621',
-          theme_color: '#0C1621',
-          orientation: 'portrait-primary',
-          lang: 'ko',
+          start_url: location.href, scope: location.href,
+          display: 'standalone', background_color: '#0C1621',
+          theme_color: '#0C1621', orientation: 'portrait-primary', lang: 'ko',
           icons: [
-            { src: icon192, sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
-            { src: icon512, sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+            { src: genIcon(192), sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+            { src: genIcon(512), sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
           ]
         };
-        const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
         const ml = document.createElement('link');
-        ml.rel = 'manifest'; ml.href = URL.createObjectURL(blob);
+        ml.rel = 'manifest';
+        ml.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], { type: 'application/json' }));
         document.head.appendChild(ml);
       } catch (_) {}
     }
   })();
 
-  /* ── Install guide modal ── */
+  /* ── Install modal ── */
   (function setupInstallUI() {
     const modal    = document.getElementById('installModal');
     const openBtn  = document.getElementById('installGuideBtn');
@@ -982,25 +888,16 @@ canvas.mini { display: block; width: 52px; height: 52px; }
     const copyBtn  = document.getElementById('copyUrlBtn');
     const banner   = document.getElementById('installBanner');
     const bannerBtn= document.getElementById('bannerInstallBtn');
-
     let deferredPrompt = null;
 
-    function openModal() {
-      urlText.textContent = location.href;
-      modal.classList.add('open');
-      document.body.style.overflow = 'hidden';
-    }
-    function closeModal() {
-      modal.classList.remove('open');
-      document.body.style.overflow = '';
-    }
+    function openModal() { urlText.textContent = location.href; modal.classList.add('open'); document.body.style.overflow = 'hidden'; }
+    function closeModal() { modal.classList.remove('open'); document.body.style.overflow = ''; }
 
     openBtn.addEventListener('click', openModal);
     closeX.addEventListener('click', closeModal);
     closeBtn.addEventListener('click', closeModal);
     modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
 
-    // Copy URL
     copyBtn.addEventListener('click', () => {
       navigator.clipboard.writeText(location.href).then(() => {
         copyBtn.textContent = '✅';
@@ -1011,11 +908,8 @@ canvas.mini { display: block; width: 52px; height: 52px; }
       });
     });
 
-    // Android Chrome: beforeinstallprompt
     window.addEventListener('beforeinstallprompt', e => {
-      e.preventDefault();
-      deferredPrompt = e;
-      banner.classList.add('show');
+      e.preventDefault(); deferredPrompt = e; banner.classList.add('show');
     });
 
     bannerBtn.addEventListener('click', () => {
@@ -1027,9 +921,7 @@ canvas.mini { display: block; width: 52px; height: 52px; }
       });
     });
 
-    // If already installed as PWA, hide install button
-    if (window.matchMedia('(display-mode: standalone)').matches ||
-        navigator.standalone === true) {
+    if (window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true) {
       if (openBtn) openBtn.style.display = 'none';
     }
   })();
@@ -1037,7 +929,6 @@ canvas.mini { display: block; width: 52px; height: 52px; }
 })();
 </script>
 
-<!-- Footer -->
 <footer class="app-footer">
   <div class="footer-line1">
     <span class="footer-by">by. T9</span>
@@ -1048,3 +939,6 @@ canvas.mini { display: block; width: 52px; height: 52px; }
   </div>
   <div class="footer-notice">본 도구는 개인 패턴 분실 시 연습 목적으로만 사용하세요.</div>
 </footer>
+
+</body>
+</html>
