@@ -1,0 +1,1033 @@
+<title>스마트폰 패턴 찾기</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
+<style>
+:root {
+  --bg: #0C1621;
+  --surface: #152030;
+  --surface2: #1E2E42;
+  --primary: #4A9EFF;
+  --primary-dim: rgba(74,158,255,0.18);
+  --primary-glow: rgba(74,158,255,0.35);
+  --text: #DFE9F5;
+  --text-sub: #6A8BA8;
+  --error: #FF5C6A;
+  --success: #3DD98A;
+  --border: rgba(74,158,255,0.13);
+  --r: 14px;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #EFF4FC;
+    --surface: #FFFFFF;
+    --surface2: #E4EBF7;
+    --text: #1A2535;
+    --text-sub: #6A7C95;
+    --border: rgba(74,158,255,0.2);
+  }
+}
+:root[data-theme="light"] {
+  --bg: #EFF4FC; --surface: #FFFFFF; --surface2: #E4EBF7;
+  --text: #1A2535; --text-sub: #6A7C95; --border: rgba(74,158,255,0.2);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+body {
+  font-family: 'Roboto', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* prevent page scroll while drawing */
+  touch-action: pan-y;
+}
+
+.app {
+  width: 100%;
+  max-width: 480px;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header ── */
+.header {
+  padding: 16px 20px 12px;
+  text-align: center;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 10;
+}
+.header h1 { font-size: 16px; font-weight: 500; }
+.header p  { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
+
+/* ── Keypad legend ── */
+.keypad-legend {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 20px 0;
+  align-items: center;
+}
+.keypad-legend span {
+  font-size: 11px;
+  color: var(--text-sub);
+}
+.keypad-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  width: 54px;
+}
+.kp-cell {
+  background: var(--surface2);
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--primary);
+  text-align: center;
+  padding: 2px 0;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Pattern area ── */
+.pattern-zone {
+  padding: 14px 20px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 5px 14px;
+  font-size: 12px;
+  color: var(--text-sub);
+  min-height: 30px;
+  transition: color .25s, border-color .25s;
+}
+.status-pill .blink {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--text-sub);
+  transition: background .25s;
+  flex-shrink: 0;
+}
+.status-pill.error  { color: var(--error);   border-color: rgba(255,92,106,.3); }
+.status-pill.error  .blink { background: var(--error); }
+.status-pill.ok     { color: var(--success); border-color: rgba(61,217,138,.3); }
+.status-pill.ok     .blink { background: var(--success); }
+
+/* Canvas fills available width on mobile */
+.canvas-shell {
+  position: relative;
+  width: min(300px, calc(100vw - 56px));
+  aspect-ratio: 1;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,.4), 0 0 0 1px var(--border);
+}
+canvas#pat { display: block; width: 100%; height: 100%; }
+
+/* ── Buttons ── */
+.action-row { display: flex; gap: 10px; }
+.btn {
+  padding: 9px 22px; border-radius: 999px; border: none;
+  font-family: inherit; font-size: 14px; font-weight: 500;
+  cursor: pointer; transition: filter .15s, opacity .15s; outline: none;
+  min-height: 44px; /* iOS tap target */
+}
+.btn:focus-visible { box-shadow: 0 0 0 3px var(--primary-glow); }
+.btn-ghost {
+  background: var(--surface); color: var(--text-sub);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover, .btn-ghost:active { background: var(--surface2); color: var(--text); }
+.btn-blue { background: var(--primary); color: #fff; }
+.btn-blue:disabled { opacity: .35; pointer-events: none; }
+.btn-blue:hover:not(:disabled), .btn-blue:active:not(:disabled) { filter: brightness(1.1); }
+
+/* ── Note input ── */
+.note-bar { width: min(300px, calc(100vw - 56px)); display: none; gap: 8px; align-items: center; }
+.note-bar.show { display: flex; }
+.note-field {
+  flex: 1; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text); font-family: inherit;
+  font-size: 14px; padding: 9px 12px; outline: none;
+  transition: border-color .2s; min-height: 44px;
+}
+.note-field::placeholder { color: var(--text-sub); }
+.note-field:focus { border-color: var(--primary); }
+.btn-confirm {
+  background: var(--primary); color: #fff; border: none; border-radius: 8px;
+  padding: 9px 14px; font-family: inherit; font-size: 13px; font-weight: 500;
+  cursor: pointer; white-space: nowrap; min-height: 44px;
+}
+
+/* ── History ── */
+.history-wrap { flex: 1; padding: 0 16px 24px; }
+.hist-head {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 4px 8px; border-top: 1px solid var(--border);
+}
+.hist-head h2 { font-size: 12px; font-weight: 500; color: var(--text-sub); letter-spacing: .6px; text-transform: uppercase; }
+.hist-count { font-size: 11px; color: var(--text-sub); background: var(--surface); border: 1px solid var(--border); border-radius: 99px; padding: 2px 8px; }
+.btn-del-all { font-size: 12px; color: var(--error); background: none; border: none; cursor: pointer; font-family: inherit; opacity: .6; padding: 4px 0; min-height: 36px; }
+.btn-del-all:hover, .btn-del-all:active { opacity: 1; }
+
+.hist-list { display: flex; flex-direction: column; gap: 7px; }
+.hist-empty { text-align: center; color: var(--text-sub); font-size: 13px; padding: 24px 0; }
+
+.hist-item {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 10px 10px 10px 12px;
+  display: flex; align-items: center; gap: 10px;
+  transition: border-color .2s;
+}
+.hist-item:hover, .hist-item:active { border-color: rgba(74,158,255,.25); }
+
+.mini-wrap { width: 52px; height: 52px; flex-shrink: 0; border-radius: 8px; overflow: hidden; background: #0C1621; }
+canvas.mini { display: block; width: 52px; height: 52px; }
+
+.hist-body { flex: 1; min-width: 0; }
+.hist-kp {
+  font-size: 13px; font-weight: 700; color: var(--primary);
+  letter-spacing: 0.5px; font-variant-numeric: tabular-nums;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.hist-note { font-size: 12px; color: var(--text); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hist-note.ph { color: var(--text-sub); font-style: italic; }
+.hist-time { font-size: 11px; color: var(--text-sub); margin-top: 3px; }
+
+.btn-x {
+  background: none; border: none; color: var(--text-sub); cursor: pointer;
+  font-size: 15px; padding: 8px; line-height: 1; opacity: .4; flex-shrink: 0;
+  transition: opacity .15s, color .15s; border-radius: 50%; min-width: 36px; min-height: 36px;
+  display: flex; align-items: center; justify-content: center;
+}
+.btn-x:hover, .btn-x:active { opacity: 1; color: var(--error); background: rgba(255,92,106,.1); }
+
+/* ── Footer ── */
+.app-footer {
+  margin-top: auto;
+  padding: 20px 20px 28px;
+  text-align: center;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.footer-by {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--primary);
+  letter-spacing: 0.5px;
+}
+.footer-copy {
+  font-size: 11px;
+  color: var(--text-sub);
+  line-height: 1.6;
+}
+.footer-divider {
+  display: inline-block;
+  margin: 0 6px;
+  opacity: 0.4;
+}
+.footer-contact {
+  font-size: 11px;
+  color: var(--text-sub);
+  opacity: 0.7;
+}
+.footer-contact a {
+  color: var(--primary);
+  text-decoration: none;
+  opacity: 0.8;
+}
+.footer-contact a:hover { opacity: 1; text-decoration: underline; }
+.footer-lock {
+  font-size: 18px;
+  opacity: 0.25;
+  margin-bottom: 2px;
+}
+
+/* ── Install button (header) ── */
+.header { position: relative; }
+.install-fab {
+  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+  background: var(--primary); color: #fff; border: none; border-radius: 99px;
+  padding: 5px 13px; font-size: 12px; font-family: inherit; font-weight: 600;
+  cursor: pointer; display: flex; align-items: center; gap: 4px;
+  min-height: 36px; transition: filter .15s, box-shadow .15s;
+  box-shadow: 0 2px 10px rgba(74,158,255,.35);
+  white-space: nowrap;
+}
+.install-fab:hover, .install-fab:active { filter: brightness(1.15); }
+.install-fab-icon { font-size: 14px; }
+
+/* ── Install guide modal ── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(8,16,28,.82);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  z-index: 200;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  opacity: 0; visibility: hidden;
+  transition: opacity .28s, visibility .28s;
+}
+.modal-overlay.open { opacity: 1; visibility: visible; }
+.modal-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 22px; width: 100%; max-width: 380px;
+  padding: 22px 20px 18px; display: flex; flex-direction: column; gap: 14px;
+  transform: translateY(12px); transition: transform .28s;
+}
+.modal-overlay.open .modal-box { transform: translateY(0); }
+.modal-hd { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.modal-title { font-size: 17px; font-weight: 700; line-height: 1.3; }
+.modal-x {
+  background: none; border: none; color: var(--text-sub); cursor: pointer;
+  font-size: 18px; padding: 0; line-height: 1; opacity: .5; flex-shrink: 0; margin-top: 2px;
+}
+.modal-x:hover { opacity: 1; }
+.modal-sub { font-size: 12px; color: var(--text-sub); line-height: 1.6; }
+.modal-url {
+  background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+  padding: 8px 12px; font-size: 11px; color: var(--primary);
+  font-family: monospace; word-break: break-all;
+  display: flex; align-items: center; gap: 8px;
+}
+.copy-url-btn {
+  background: none; border: none; color: var(--primary); cursor: pointer;
+  font-size: 14px; flex-shrink: 0; padding: 2px 4px; border-radius: 4px;
+  transition: background .15s;
+}
+.copy-url-btn:hover { background: var(--primary-dim); }
+.modal-os {
+  background: var(--surface2); border-radius: 14px; padding: 14px 14px 12px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.modal-os-title { font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 2px; }
+.modal-step { font-size: 12.5px; color: var(--text); line-height: 1.55; padding-left: 4px; }
+.modal-step b { color: var(--primary); }
+.modal-btn-close {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 11px; text-align: center;
+  color: var(--text-sub); font-size: 14px; font-weight: 500; cursor: pointer;
+  font-family: inherit; transition: background .15s, color .15s, border-color .15s;
+}
+.modal-btn-close:hover, .modal-btn-close:active {
+  background: var(--primary); color: #fff; border-color: var(--primary);
+}
+.install-banner {
+  display: none; align-items: center; justify-content: space-between;
+  background: var(--primary); color: #fff; padding: 10px 16px;
+  font-size: 13px; gap: 10px;
+}
+.install-banner.show { display: flex; }
+.install-banner button {
+  background: #fff; color: var(--primary); border: none; border-radius: 99px;
+  padding: 5px 14px; font-size: 12px; font-weight: 700; cursor: pointer;
+  white-space: nowrap; font-family: inherit;
+}
+</style>
+
+<div class="app">
+  <!-- Android install banner (shows only when browser fires beforeinstallprompt) -->
+  <div class="install-banner" id="installBanner">
+    <span>📲 홈 화면에 앱으로 설치하기</span>
+    <button id="bannerInstallBtn">설치</button>
+  </div>
+
+  <div class="header">
+    <h1>🔐 스마트폰 패턴 찾기</h1>
+    <p>패턴을 그려서 연습하고 기록하세요</p>
+    <button class="install-fab" id="installGuideBtn" title="앱으로 설치하기">
+      <span class="install-fab-icon">📲</span> 앱 설치
+    </button>
+  </div>
+
+  <!-- Keypad number legend -->
+  <div class="keypad-legend">
+    <span>번호 기준</span>
+    <div class="keypad-grid">
+      <div class="kp-cell">7</div><div class="kp-cell">8</div><div class="kp-cell">9</div>
+      <div class="kp-cell">4</div><div class="kp-cell">5</div><div class="kp-cell">6</div>
+      <div class="kp-cell">1</div><div class="kp-cell">2</div><div class="kp-cell">3</div>
+    </div>
+    <span>← 전화 키패드</span>
+  </div>
+
+  <div class="pattern-zone">
+    <div class="status-pill" id="statusPill">
+      <span class="blink"></span>
+      <span id="statusText">점을 연결하여 패턴을 그리세요</span>
+    </div>
+
+    <div class="canvas-shell" id="shell">
+      <canvas id="pat"></canvas>
+    </div>
+
+    <div class="action-row">
+      <button class="btn btn-ghost" id="btnReset">초기화</button>
+      <button class="btn btn-blue" id="btnSave" disabled>저장하기</button>
+    </div>
+
+    <div class="note-bar" id="noteBar">
+      <input class="note-field" id="noteField" placeholder="메모 (예: ㄱ자형, 시도5…)" maxlength="40">
+      <button class="btn-confirm" id="btnConfirm">저장</button>
+    </div>
+  </div>
+
+  <div class="history-wrap">
+    <div class="hist-head">
+      <h2>시도 기록</h2>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="hist-count" id="histCount">0개</span>
+        <button class="btn-del-all" id="btnDelAll">전체 삭제</button>
+      </div>
+    </div>
+    <div class="hist-list" id="histList">
+      <div class="hist-empty">저장된 패턴이 없습니다</div>
+    </div>
+  </div>
+</div>
+
+<!-- Install Guide Modal -->
+<div class="modal-overlay" id="installModal" role="dialog" aria-modal="true" aria-label="앱 설치 안내">
+  <div class="modal-box">
+    <div class="modal-hd">
+      <div class="modal-title">📲 홈 화면에 앱으로 설치</div>
+      <button class="modal-x" id="modalCloseX">✕</button>
+    </div>
+    <p class="modal-sub">설치하면 앱처럼 전체화면으로 실행되며 오프라인에서도 사용할 수 있습니다.</p>
+
+    <div class="modal-url" id="siteUrl">
+      <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" id="urlText">—</span>
+      <button class="copy-url-btn" id="copyUrlBtn" title="URL 복사">📋</button>
+    </div>
+
+    <div class="modal-os">
+      <div class="modal-os-title">🤖 Android (Chrome)</div>
+      <div class="modal-step">① Chrome 브라우저로 위 주소를 여세요</div>
+      <div class="modal-step">② 우측 상단 <b>⋮</b> 메뉴 탭</div>
+      <div class="modal-step">③ <b>"홈 화면에 추가"</b> 선택</div>
+      <div class="modal-step">④ 앱 이름 확인 후 <b>"추가"</b> 탭</div>
+    </div>
+
+    <div class="modal-os">
+      <div class="modal-os-title">🍎 iPhone / iPad (Safari)</div>
+      <div class="modal-step">① Safari 브라우저로 위 주소를 여세요</div>
+      <div class="modal-step">② 하단 <b>공유</b> 아이콘 (□↑) 탭</div>
+      <div class="modal-step">③ <b>"홈 화면에 추가"</b> 선택</div>
+      <div class="modal-step">④ <b>"추가"</b> 탭 — 완료!</div>
+    </div>
+
+    <button class="modal-btn-close" id="modalCloseBtn">닫기</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ── Keypad mapping: grid index (0-8, row-major) → phone keypad number ──
+  // Grid layout:  [0][1][2]     Keypad:  7  8  9
+  //               [3][4][5]              4  5  6
+  //               [6][7][8]              1  2  3
+  const KEYPAD = [7, 8, 9, 4, 5, 6, 1, 2, 3];
+
+  /* ── DOM ── */
+  const canvas     = document.getElementById('pat');
+  const shell      = document.getElementById('shell');
+  const ctx        = canvas.getContext('2d');
+  const statusPill = document.getElementById('statusPill');
+  const statusText = document.getElementById('statusText');
+  const btnReset   = document.getElementById('btnReset');
+  const btnSave    = document.getElementById('btnSave');
+  const noteBar    = document.getElementById('noteBar');
+  const noteField  = document.getElementById('noteField');
+  const btnConfirm = document.getElementById('btnConfirm');
+  const histList   = document.getElementById('histList');
+  const histCount  = document.getElementById('histCount');
+  const btnDelAll  = document.getElementById('btnDelAll');
+
+  /* ── State ── */
+  let pattern  = [];
+  let drawing  = false;
+  let curPos   = null;
+  let dots     = [];
+  let dpr      = 1;
+  let dispSize = 0;
+  let history  = [];
+
+  try { const s = localStorage.getItem('gp_hist2'); if (s) history = JSON.parse(s); } catch (_) {}
+
+  /* ── Sizing ── */
+  function resize() {
+    dpr      = Math.min(window.devicePixelRatio || 1, 3);
+    dispSize = shell.offsetWidth;
+    canvas.width  = dispSize * dpr;
+    canvas.height = dispSize * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    computeDots();
+    render();
+  }
+
+  function computeDots() {
+    const pad  = dispSize * 0.175;
+    const step = (dispSize - pad * 2) / 2;
+    dots = [];
+    for (let r = 0; r < 3; r++)
+      for (let c = 0; c < 3; c++)
+        dots.push({ x: pad + c * step, y: pad + r * step });
+  }
+
+  /* ── Colors ── */
+  const C = {
+    bg:     '#0C1621',
+    line:   'rgba(74,158,255,0.65)',
+    trail:  'rgba(74,158,255,0.28)',
+    dot:    '#4A9EFF',
+    idle:   '#1E3049',
+    ring:   'rgba(74,158,255,0.18)',
+    stroke: 'rgba(74,158,255,0.42)',
+    num:    'rgba(100,148,190,0.85)',
+  };
+  const R_ACT  = 13;
+  const R_RING = 22;
+  const R_IDLE = 8;
+
+  /* ── Render ── */
+  function render() {
+    const s = dispSize;
+    ctx.fillStyle = C.bg;
+    ctx.fillRect(0, 0, s, s);
+
+    // Connecting lines
+    if (pattern.length >= 2) {
+      ctx.beginPath();
+      const {x: x0, y: y0} = dots[pattern[0]];
+      ctx.moveTo(x0, y0);
+      for (let i = 1; i < pattern.length; i++) {
+        const {x, y} = dots[pattern[i]];
+        ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = C.line;
+      ctx.lineWidth   = 2.5;
+      ctx.lineCap     = 'round';
+      ctx.lineJoin    = 'round';
+      ctx.stroke();
+    }
+
+    // Trailing line to finger/cursor
+    if (drawing && pattern.length > 0 && curPos) {
+      const last = dots[pattern[pattern.length - 1]];
+      ctx.beginPath();
+      ctx.moveTo(last.x, last.y);
+      ctx.lineTo(curPos.x, curPos.y);
+      ctx.strokeStyle = C.trail;
+      ctx.lineWidth   = 2;
+      ctx.lineCap     = 'round';
+      ctx.stroke();
+    }
+
+    // Dots
+    dots.forEach((p, i) => {
+      const active  = pattern.includes(i);
+      const kpNum   = KEYPAD[i];           // keypad number for this dot
+      const drawOrd = active ? (pattern.indexOf(i) + 1) : 0;
+
+      if (active) {
+        // Outer glow ring
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, R_RING, 0, Math.PI * 2);
+        ctx.fillStyle = C.ring;
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, R_RING, 0, Math.PI * 2);
+        ctx.strokeStyle = C.stroke;
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+
+        // Blue filled circle
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, R_ACT, 0, Math.PI * 2);
+        ctx.fillStyle = C.dot;
+        ctx.fill();
+
+        // Keypad number inside dot (white, bold)
+        ctx.font = `bold 11px Roboto, sans-serif`;
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(kpNum, p.x, p.y);
+
+        // Draw order: small badge top-right of ring
+        if (pattern.length > 1) {
+          const bx = p.x + R_RING * 0.7;
+          const by = p.y - R_RING * 0.7;
+          ctx.beginPath();
+          ctx.arc(bx, by, 7, 0, Math.PI * 2);
+          ctx.fillStyle = '#0C1621';
+          ctx.fill();
+          ctx.beginPath();
+          ctx.arc(bx, by, 7, 0, Math.PI * 2);
+          ctx.strokeStyle = C.dot;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+          ctx.font = `bold 7px Roboto, sans-serif`;
+          ctx.fillStyle = C.dot;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(drawOrd, bx, by);
+        }
+
+      } else {
+        // Idle dot
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, R_IDLE, 0, Math.PI * 2);
+        ctx.fillStyle = C.idle;
+        ctx.fill();
+
+        // Center highlight
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(100,148,190,0.4)';
+        ctx.fill();
+
+        // Keypad number below dot (dim label)
+        ctx.font = `500 9px Roboto, sans-serif`;
+        ctx.fillStyle = C.num;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.fillText(kpNum, p.x, p.y + R_IDLE + 2);
+      }
+    });
+  }
+
+  /* ── Input ── */
+  function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const sx = dispSize / rect.width;
+    const sy = dispSize / rect.height;
+    const src = e.touches ? e.touches[0] : e;
+    return {
+      x: (src.clientX - rect.left) * sx,
+      y: (src.clientY - rect.top)  * sy
+    };
+  }
+
+  function nearestDot(x, y) {
+    let best = -1, bestD = Infinity;
+    dots.forEach((p, i) => {
+      const d = Math.hypot(x - p.x, y - p.y);
+      if (d < bestD) { bestD = d; best = i; }
+    });
+    return bestD < R_RING + 6 ? best : -1;
+  }
+
+  function onStart(e) {
+    e.preventDefault();
+    drawing = true; pattern = [];
+    btnSave.disabled = true;
+    noteBar.classList.remove('show');
+    setStatus('', '패턴 입력 중...');
+    const pos = getPos(e);
+    curPos = pos;
+    const d = nearestDot(pos.x, pos.y);
+    if (d >= 0) pattern.push(d);
+    render();
+  }
+
+  function onMove(e) {
+    if (!drawing) return;
+    e.preventDefault();
+    const pos = getPos(e);
+    curPos = pos;
+    const d = nearestDot(pos.x, pos.y);
+    if (d >= 0 && !pattern.includes(d)) pattern.push(d);
+    render();
+  }
+
+  function onEnd(e) {
+    if (!drawing) return;
+    e.preventDefault();
+    drawing = false; curPos = null;
+    if (pattern.length >= 4) {
+      setStatus('ok', `완성! ${kpLabel(pattern)} (${pattern.length}개 점)`);
+      btnSave.disabled = false;
+    } else if (pattern.length > 0) {
+      setStatus('error', `최소 4개 점 필요 (현재 ${pattern.length}개)`);
+      setTimeout(() => {
+        if (!drawing) { pattern = []; render(); setStatus('', '점을 연결하여 패턴을 그리세요'); }
+      }, 1600);
+    }
+    render();
+  }
+
+  canvas.addEventListener('mousedown',  onStart);
+  canvas.addEventListener('mousemove',  onMove);
+  canvas.addEventListener('mouseup',    onEnd);
+  canvas.addEventListener('touchstart', onStart, { passive: false });
+  canvas.addEventListener('touchmove',  onMove,  { passive: false });
+  canvas.addEventListener('touchend',   onEnd,   { passive: false });
+  // Prevent context menu on long press
+  canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+  /* ── Status ── */
+  function setStatus(type, msg) {
+    statusPill.className = 'status-pill' + (type ? ' ' + type : '');
+    statusText.textContent = msg;
+  }
+
+  /* ── Labels ── */
+  // Convert pattern indices → keypad numbers sequence string
+  function kpLabel(pts) {
+    return pts.map(i => KEYPAD[i]).join(' → ');
+  }
+
+  /* ── Controls ── */
+  btnReset.addEventListener('click', () => {
+    pattern = []; drawing = false; curPos = null;
+    btnSave.disabled = true; noteBar.classList.remove('show');
+    setStatus('', '점을 연결하여 패턴을 그리세요');
+    render();
+  });
+
+  btnSave.addEventListener('click', () => {
+    noteBar.classList.add('show');
+    noteField.focus();
+  });
+
+  function doSave() {
+    if (pattern.length < 4) return;
+    const entry = {
+      id:   Date.now(),
+      pts:  [...pattern],
+      kp:   kpLabel(pattern),           // keypad sequence string
+      note: noteField.value.trim(),
+      ts:   new Date().toISOString()
+    };
+    history.unshift(entry);
+    if (history.length > 60) history.length = 60;
+    persist(); renderHistory();
+    noteField.value = '';
+    noteBar.classList.remove('show');
+    btnSave.disabled = true;
+    pattern = []; render();
+    setStatus('ok', '저장 완료!');
+    setTimeout(() => setStatus('', '점을 연결하여 패턴을 그리세요'), 2000);
+  }
+
+  btnConfirm.addEventListener('click', doSave);
+  noteField.addEventListener('keydown', e => { if (e.key === 'Enter') doSave(); });
+
+  btnDelAll.addEventListener('click', () => {
+    if (!history.length) return;
+    if (!confirm('기록을 모두 삭제하시겠습니까?')) return;
+    history = []; persist(); renderHistory();
+  });
+
+  /* ── Persistence ── */
+  function persist() {
+    try { localStorage.setItem('gp_hist2', JSON.stringify(history)); } catch (_) {}
+  }
+
+  /* ── History render ── */
+  function relTime(iso) {
+    const s = (Date.now() - new Date(iso)) / 1000;
+    if (s < 60)    return '방금 전';
+    if (s < 3600)  return `${Math.floor(s / 60)}분 전`;
+    if (s < 86400) return `${Math.floor(s / 3600)}시간 전`;
+    return new Date(iso).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+
+  function drawMini(cnv, pts) {
+    const dpr2 = Math.min(window.devicePixelRatio || 1, 2);
+    const D = 52;
+    cnv.width = D * dpr2; cnv.height = D * dpr2;
+    const c = cnv.getContext('2d');
+    c.setTransform(dpr2, 0, 0, dpr2, 0, 0);
+    c.fillStyle = '#0C1621'; c.fillRect(0, 0, D, D);
+
+    const pad = D * 0.18, step = (D - pad * 2) / 2;
+    const md = [];
+    for (let r = 0; r < 3; r++)
+      for (let col = 0; col < 3; col++)
+        md.push({ x: pad + col * step, y: pad + r * step });
+
+    if (pts.length >= 2) {
+      c.beginPath();
+      c.moveTo(md[pts[0]].x, md[pts[0]].y);
+      for (let i = 1; i < pts.length; i++) c.lineTo(md[pts[i]].x, md[pts[i]].y);
+      c.strokeStyle = 'rgba(74,158,255,0.75)';
+      c.lineWidth = 1.5; c.lineCap = 'round'; c.lineJoin = 'round';
+      c.stroke();
+    }
+    md.forEach((p, i) => {
+      const on = pts.includes(i);
+      c.beginPath();
+      c.arc(p.x, p.y, on ? 3.5 : 2, 0, Math.PI * 2);
+      c.fillStyle = on ? '#4A9EFF' : '#1E3049';
+      c.fill();
+      // Show keypad number in mini
+      if (on) {
+        c.font = `bold 5px sans-serif`;
+        c.fillStyle = '#fff';
+        c.textAlign = 'center';
+        c.textBaseline = 'middle';
+        c.fillText(KEYPAD[i], p.x, p.y);
+      }
+    });
+  }
+
+  function renderHistory() {
+    histCount.textContent = `${history.length}개`;
+    if (!history.length) {
+      histList.innerHTML = '<div class="hist-empty">저장된 패턴이 없습니다</div>';
+      return;
+    }
+    histList.innerHTML = '';
+    history.forEach(entry => {
+      const item = document.createElement('div');
+      item.className = 'hist-item';
+
+      const mw = document.createElement('div');
+      mw.className = 'mini-wrap';
+      const mc = document.createElement('canvas');
+      mc.className = 'mini';
+      mw.appendChild(mc);
+
+      const body = document.createElement('div');
+      body.className = 'hist-body';
+
+      // Keypad number sequence (primary display)
+      const kp = document.createElement('div');
+      kp.className = 'hist-kp';
+      // Use stored kp string or recompute
+      kp.textContent = entry.kp || kpLabel(entry.pts);
+
+      const note = document.createElement('div');
+      note.className = 'hist-note' + (entry.note ? '' : ' ph');
+      note.textContent = entry.note || `점 ${entry.pts.length}개`;
+
+      const ts = document.createElement('div');
+      ts.className = 'hist-time';
+      ts.textContent = relTime(entry.ts);
+
+      body.append(kp, note, ts);
+
+      const xBtn = document.createElement('button');
+      xBtn.className = 'btn-x';
+      xBtn.title = '삭제';
+      xBtn.innerHTML = '&#x2715;';
+      xBtn.addEventListener('click', () => {
+        history = history.filter(h => h.id !== entry.id);
+        persist(); renderHistory();
+      });
+
+      item.append(mw, body, xBtn);
+      histList.appendChild(item);
+
+      requestAnimationFrame(() => drawMini(mc, entry.pts));
+    });
+  }
+
+  /* ── Init ── */
+  window.addEventListener('resize', resize);
+  resize();
+  renderHistory();
+
+  /* ── PWA: inject meta tags & manifest ── */
+  (function setupPWA() {
+    // Apple / mobile web app meta tags
+    const metas = [
+      { name: 'mobile-web-app-capable',           content: 'yes' },
+      { name: 'apple-mobile-web-app-capable',     content: 'yes' },
+      { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
+      { name: 'apple-mobile-web-app-title',       content: '패턴 찾기' },
+      { name: 'theme-color',                      content: '#0C1621' },
+    ];
+    metas.forEach(({ name, content }) => {
+      if (document.querySelector(`meta[name="${name}"]`)) return;
+      const m = document.createElement('meta');
+      m.name = name; m.content = content;
+      document.head.appendChild(m);
+    });
+
+    // Generate a simple icon via canvas
+    function genIcon(size) {
+      const c = document.createElement('canvas');
+      c.width = c.height = size;
+      const x = c.getContext('2d');
+      const r = size * 0.18;
+      // Rounded rect background
+      x.fillStyle = '#0C1621';
+      if (x.roundRect) {
+        x.beginPath(); x.roundRect(0, 0, size, size, r); x.fill();
+      } else {
+        x.fillRect(0, 0, size, size);
+      }
+      // 3×3 dot grid with a sample pattern (diagonal: 0→4→8)
+      const pad = size * 0.2, step = (size - pad * 2) / 2;
+      const linePts = [0, 4, 8];
+      // Draw line
+      x.beginPath();
+      x.moveTo(pad, pad);
+      x.lineTo(pad + step, pad + step);
+      x.lineTo(pad + step * 2, pad + step * 2);
+      x.strokeStyle = 'rgba(74,158,255,0.8)';
+      x.lineWidth = size * 0.045; x.lineCap = 'round'; x.lineJoin = 'round';
+      x.stroke();
+      // Draw dots
+      for (let row = 0; row < 3; row++) {
+        for (let col = 0; col < 3; col++) {
+          const idx = row * 3 + col;
+          const active = linePts.includes(idx);
+          const cx = pad + col * step, cy = pad + row * step;
+          x.beginPath();
+          x.arc(cx, cy, size * (active ? 0.072 : 0.044), 0, Math.PI * 2);
+          x.fillStyle = active ? '#4A9EFF' : '#1E3049';
+          x.fill();
+        }
+      }
+      return c.toDataURL('image/png');
+    }
+
+    // Apple touch icon
+    if (!document.querySelector('link[rel="apple-touch-icon"]')) {
+      const icon = genIcon(180);
+      const li = document.createElement('link');
+      li.rel = 'apple-touch-icon'; li.href = icon;
+      document.head.appendChild(li);
+    }
+
+    // Web App Manifest (inline via blob URL — best-effort)
+    if (!document.querySelector('link[rel="manifest"]')) {
+      try {
+        const icon192 = genIcon(192);
+        const icon512 = genIcon(512);
+        const manifest = {
+          name: '스마트폰 패턴 찾기',
+          short_name: '패턴 찾기',
+          description: '스마트폰 패턴 잠금 연습 앱 — by T9',
+          start_url: location.href,
+          scope: location.href,
+          display: 'standalone',
+          background_color: '#0C1621',
+          theme_color: '#0C1621',
+          orientation: 'portrait-primary',
+          lang: 'ko',
+          icons: [
+            { src: icon192, sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+            { src: icon512, sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+          ]
+        };
+        const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+        const ml = document.createElement('link');
+        ml.rel = 'manifest'; ml.href = URL.createObjectURL(blob);
+        document.head.appendChild(ml);
+      } catch (_) {}
+    }
+  })();
+
+  /* ── Install guide modal ── */
+  (function setupInstallUI() {
+    const modal    = document.getElementById('installModal');
+    const openBtn  = document.getElementById('installGuideBtn');
+    const closeX   = document.getElementById('modalCloseX');
+    const closeBtn = document.getElementById('modalCloseBtn');
+    const urlText  = document.getElementById('urlText');
+    const copyBtn  = document.getElementById('copyUrlBtn');
+    const banner   = document.getElementById('installBanner');
+    const bannerBtn= document.getElementById('bannerInstallBtn');
+
+    let deferredPrompt = null;
+
+    function openModal() {
+      urlText.textContent = location.href;
+      modal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeModal() {
+      modal.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    openBtn.addEventListener('click', openModal);
+    closeX.addEventListener('click', closeModal);
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+
+    // Copy URL
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(location.href).then(() => {
+        copyBtn.textContent = '✅';
+        setTimeout(() => { copyBtn.textContent = '📋'; }, 1800);
+      }).catch(() => {
+        copyBtn.textContent = '❌';
+        setTimeout(() => { copyBtn.textContent = '📋'; }, 1500);
+      });
+    });
+
+    // Android Chrome: beforeinstallprompt
+    window.addEventListener('beforeinstallprompt', e => {
+      e.preventDefault();
+      deferredPrompt = e;
+      banner.classList.add('show');
+    });
+
+    bannerBtn.addEventListener('click', () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(choice => {
+        if (choice.outcome === 'accepted') banner.classList.remove('show');
+        deferredPrompt = null;
+      });
+    });
+
+    // If already installed as PWA, hide install button
+    if (window.matchMedia('(display-mode: standalone)').matches ||
+        navigator.standalone === true) {
+      if (openBtn) openBtn.style.display = 'none';
+    }
+  })();
+
+})();
+</script>
+
+<!-- Footer -->
+<footer class="app-footer">
+  <div class="footer-lock">🔐</div>
+  <div class="footer-by">by. T9</div>
+  <div class="footer-copy">
+    © 2026 스마트폰 패턴 찾기
+    <span class="footer-divider">·</span>
+    All rights reserved.
+  </div>
+  <div class="footer-contact">
+    문의 &amp; 피드백
+    <span class="footer-divider">·</span>
+    <a href="mailto:dotol9u@gmail.com">dotol9u@gmail.com</a>
+  </div>
+  <div class="footer-copy" style="margin-top:2px;">
+    본 도구는 개인 패턴 분실 시 연습 목적으로만 사용하세요.
+  </div>
+</footer>
